@@ -14,14 +14,17 @@ class Button extends Viewer {
     , "filter": "invert(100%) saturate(50%)"})
       .appendTo(this.card.content);
 
-    this.joyId = "joy-" + Math.floor(Math.random()*10000);
-    this.joy = $('<div><button id=button_1>start</button></div>')
+    this.button = $('<div><button id=button_1>start</button></div>')
       .css({
         "height": "250px",
       })
       .appendTo(this.viewer);
 
-    var button = document.createElement("button");
+    document.getElementById("button_1").onclick = function() {
+      // ここに#buttonをクリックしたら発生させる処理を記述する
+      console.log("test!!!!!!");
+    };
+
   }
 
   onData(msg) {
