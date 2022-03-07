@@ -146,10 +146,6 @@ class ROSBoardNode(object):
                 elif twist.linear.x < 0:
                   print("stop!!!")
 
-            self.twist_pub.publish(twist)
-
-
-
     def joy_loop(self):
         """
         Sending joy message from client
