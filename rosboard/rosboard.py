@@ -97,6 +97,9 @@ class ROSBoardNode(object):
         threading.Thread(target = self.pingpong_loop, daemon = True).start()
 
         # loop to send client joy message to ros topic
+
+        threading.Thread(target = self.joy_loop, daemon = True).start()
+
         threading.Thread(target = self.button_loop, daemon = True).start()
 
         self.lock = threading.Lock()
@@ -134,22 +137,18 @@ class ROSBoardNode(object):
         """
         Sending joy message from client
         """
-        twist = Twist()
         msg = Empty()
         while True:
             time.sleep(0.1)
             self.empty_pub.publish(msg)
-            if not isinstance(ROSBoardSocketHandler.joy_msg, dict):
+            if not isinstance(ROSBoardSocketHandler.button_msg, dict):
                 continue
+
             if 'x' in ROSBoardSocketHandler.joy_msg and 'y' in ROSBoardSocketHandler.joy_msg:
-                twist.linear.x = -float(ROSBoardSocketHandler.joy_msg['y']) * 3.0
-                twist.angular.z = -float(ROSBoardSocketHandler.joy_msg['x']) * 2.0
                 print(ROSBoardSocketHandler.joy_msg)
 
-                if twist.linear.x > 0:
-                  print("start!!!")
-                elif twist.linear.x < 0:
-                  print("stop!!!")
+            if '1' in ROSBoardSocketHandler.button_msg and '2' in ROSBoardSocketHandler.button_msg:
+                print(ROSBoardSocketHandler.button_msg)
 
     def joy_loop(self):
         """

@@ -22,9 +22,9 @@ class Button extends Viewer {
 
     document.getElementById("button_1").onclick = function() {
       // ここに#buttonをクリックしたら発生させる処理を記述する
-      let joystickX = 1.0;
-      let joystickY = 1.0;
-      currentTransport.update_joy({joystickX, joystickY});
+      let button_1 = 1.0;
+      let button_2 = 0.0;
+      currentTransport.update_button({button_1, button_2});
     };
 
   }
