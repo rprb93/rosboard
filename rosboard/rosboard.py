@@ -17,6 +17,7 @@ else:
     exit(1)
 
 from geometry_msgs.msg import Twist
+from std_msgs.msg import Empty
 from rosgraph_msgs.msg import Log
 
 from rosboard.serialization import ros2dict
@@ -59,6 +60,7 @@ class ROSBoardNode(object):
             self.sub_rosout = rospy.Subscriber("/rosout", Log, lambda x:x)
 
         self.twist_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=100)
+        self.empty_pub = rospy.Publisher('/button', Empty, queue_size=100)
 
         tornado_settings = {
             'debug': True,
@@ -133,8 +135,11 @@ class ROSBoardNode(object):
         Sending joy message from client
         """
         twist = Twist()
+        msg = Empty()
         while True:
+            print("test")
             time.sleep(0.1)
+            self.empty_pub.publish(msg)
             if not isinstance(ROSBoardSocketHandler.joy_msg, dict):
                 continue
             if 'x' in ROSBoardSocketHandler.joy_msg and 'y' in ROSBoardSocketHandler.joy_msg:
