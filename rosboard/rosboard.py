@@ -137,7 +137,6 @@ class ROSBoardNode(object):
         twist = Twist()
         msg = Empty()
         while True:
-            print("test")
             time.sleep(0.1)
             self.empty_pub.publish(msg)
             if not isinstance(ROSBoardSocketHandler.joy_msg, dict):
