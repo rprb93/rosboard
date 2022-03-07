@@ -144,6 +144,7 @@ class ROSBoardNode(object):
             if 'x' in ROSBoardSocketHandler.joy_msg and 'y' in ROSBoardSocketHandler.joy_msg:
                 twist.linear.x = -float(ROSBoardSocketHandler.joy_msg['y']) * 3.0
                 twist.angular.z = -float(ROSBoardSocketHandler.joy_msg['x']) * 2.0
+                print(ROSBoardSocketHandler.joy_msg)
 
                 if twist.linear.x > 0:
                   print("start!!!")
