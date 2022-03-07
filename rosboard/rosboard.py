@@ -138,17 +138,33 @@ class ROSBoardNode(object):
         Sending joy message from client
         """
         msg = Empty()
+
+        button_1 = 0
+        last_button_1 = 0
+
+        button_2 = 0
+        last_button_2 = 0
+
         while True:
             time.sleep(0.1)
             self.empty_pub.publish(msg)
             if not isinstance(ROSBoardSocketHandler.button_msg, dict):
                 continue
 
-            if 'x' in ROSBoardSocketHandler.joy_msg and 'y' in ROSBoardSocketHandler.joy_msg:
-                print(ROSBoardSocketHandler.joy_msg)
+            if '1' in ROSBoardSocketHandler.button_msg:
+                button_1 = float(ROSBoardSocketHandler.button_msg['1'])
 
-            if '1' in ROSBoardSocketHandler.button_msg and '2' in ROSBoardSocketHandler.button_msg:
-                print(ROSBoardSocketHandler.button_msg)
+            if '2' in ROSBoardSocketHandler.button_msg:
+                button_2 = float(ROSBoardSocketHandler.button_msg['2'])
+
+            if (button_1 == 1.0) and (last_button_1 == 0.0):
+              print("click button 1")
+
+            if button_2 == 1 and last_button_2 == 0:
+              print("click button 2")
+
+            last_button_1 = button_1
+            last_button_2 = button_2
 
     def joy_loop(self):
         """
