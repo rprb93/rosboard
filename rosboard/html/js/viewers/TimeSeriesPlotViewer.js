@@ -90,6 +90,7 @@ class TimeSeriesPlotViewer extends Viewer {
     setInterval(()=> {
       let data = [];
       if(this.data[0][this.ptr] === 0) {
+        // console.log(this.ptr);
         data = [
           this.data[0].slice(0, this.ptr),
           this.data[1].slice(0, this.ptr),
@@ -108,10 +109,11 @@ class TimeSeriesPlotViewer extends Viewer {
   }
 
   onData(msg) {
+      this.numElem_new = msg.data.length;
       this.card.title.text(msg._topic_name);
       this.valueField.text(msg.data);
       this.data[0][this.ptr] = Math.floor(Date.now() / 10)/ 100;
-      this.data[1][this.ptr] = msg.data;
+      this.data[1][this.ptr] = msg.data[this.plotshow];
       this.ptr = (this.ptr + 1) % this.size;
   }
 }
@@ -132,6 +134,7 @@ TimeSeriesPlotViewer.supportedTypes = [
     "std_msgs/msg/UInt64",
     "std_msgs/msg/Float32",
     "std_msgs/msg/Float64",
+    "std_msgs/msg/Float32MultiArray",
 ];
 
 TimeSeriesPlotViewer.maxUpdateRate = 100.0;

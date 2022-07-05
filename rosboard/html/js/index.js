@@ -16,6 +16,7 @@ importJsOnce("js/viewers/TimeSeriesPlotViewer.js");
 importJsOnce("js/viewers/PointCloud2Viewer.js");
 importJsOnce("js/viewers/JoystickController.js");
 importJsOnce("js/viewers/Button.js");
+importJsOnce("js/viewers/CompassViewer.js");
 
 // GenericViewer must be last
 importJsOnce("js/viewers/GenericViewer.js");
@@ -203,17 +204,31 @@ function initSubscribe({topicName, topicType}) {
     }
   }  
   currentTransport.subscribe({topicName: topicName});
-  if(!subscriptions[topicName].viewer) {
+  // if(!subscriptions[topicName].viewer) {
     let card = newCard();
     let viewer = Viewer.getDefaultViewerForType(topicType);
+    // let viewer = null;
+
+    if(!subscriptions[topicName].viewer) {
+
     try {
-      subscriptions[topicName].viewer = new viewer(card, topicName, topicType);
+      subscriptions[topicName].viewer = new viewer(card, topicName, topicType, 0);
     } catch(e) {
       console.log(e);
       card.remove();
     }
     $grid.masonry("appended", card);
   }
+  // else{
+  //   try {
+  //     let topicName1 = "test";
+  //     subscriptions[topicName1].viewer = new viewer(card, topicName, topicType, 0);
+  //   } catch(e) {
+  //     console.log(e);
+  //     // card.remove();
+  //   }
+  //   $grid.masonry("appended", card);
+  // }
   updateStoredSubscriptions();
 }
 

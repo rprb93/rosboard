@@ -11,14 +11,17 @@ class Viewer {
     * Class constructor.
     * @constructor
   **/
-  constructor(card, topicName, topicType) {
+  constructor(card, topicName, topicType, numElem) {
     this.card = card;
     this.isPaused = false;
 
     this.topicName = topicName;
     this.topicType = topicType;
+    this.numElem_new = numElem;
+    this.numElem_old = numElem;
+    this.plotshow = 0;
 
-    this.onClose = () => {};
+    this.onClose = () => { };
     let that = this;
 
     // div container at the top right for all the buttons
@@ -30,16 +33,41 @@ class Viewer {
     // card content div
     card.content = $('<div></div>').addClass('card-content').text('').appendTo(card);
 
+    if (this.topicType === "std_msgs/Float32MultiArray") {
+      // card multiArray button
+      let mlArrayId = 'menu-' + Math.floor(Math.random() * 1e6);
+
+      card.settingsButton = $('<button id="' + mlArrayId + '"></button>')
+        .addClass('mdl-button')
+        .addClass('mdl-js-button')
+        .addClass('mdl-button--icon')
+        .addClass('mdl-button--colored')
+        .append($('<i></i>').addClass('material-icons').text('expand_more'))
+        .appendTo(card.buttons);
+
+      card.multiArray = $('<ul id=ul-'+ mlArrayId + ' class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" style="overflow-y: scroll; max-height: 150px;" \
+      for="' + mlArrayId + '"></ul>').appendTo(card);
+
+      // console.log(this.listArray)
+      // let listArray = Viewer.getViewersForType(this.topicType);
+      for (let i=0; i < this.numElem; i++) {
+        let item = $('<li class="mdl-menu__item">' + i + '</li>').appendTo(this.card.multiArray);
+        let that = this;
+        item.click(() => { Viewer.onSwitchViewer(that, this.numElem[i]); });
+      }
+    }
+
+
     // card pause button
     let menuId = 'menu-' + Math.floor(Math.random() * 1e6);
 
     card.settingsButton = $('<button id="' + menuId + '"></button>')
-    .addClass('mdl-button')
-    .addClass('mdl-js-button')
-    .addClass('mdl-button--icon')
-    .addClass('mdl-button--colored')
-    .append($('<i></i>').addClass('material-icons').text('more_vert'))
-    .appendTo(card.buttons);
+      .addClass('mdl-button')
+      .addClass('mdl-js-button')
+      .addClass('mdl-button--icon')
+      .addClass('mdl-button--colored')
+      .append($('<i></i>').addClass('material-icons').text('more_vert'))
+      .appendTo(card.buttons);
     /*card.settingsButton.click(function(e) {
       console.log("not implemented yet");
     });*/
@@ -53,7 +81,7 @@ class Viewer {
     // <li class="mdl-menu__item">Yet Another Action</li> \
 
     let viewers = Viewer.getViewersForType(this.topicType);
-    for(let i in viewers) {
+    for (let i in viewers) {
       let item = $('<li ' + (viewers[i].name === this.constructor.name ? 'disabled' : '') + ' class="mdl-menu__item">' + viewers[i].friendlyName + '</li>').appendTo(this.card.menu);
       let that = this;
       item.click(() => { Viewer.onSwitchViewer(that, viewers[i]); });
@@ -69,10 +97,10 @@ class Viewer {
       .addClass('mdl-button--colored')
       .append($('<i></i>').addClass('material-icons').text('pause'))
       .appendTo(card.buttons);
-      card.pauseButton.click(function(e) {
-        that.isPaused = !that.isPaused;
-        that.card.pauseButton.find('i').text(that.isPaused ? 'play_arrow' : 'pause');
-      });
+    card.pauseButton.click(function (e) {
+      that.isPaused = !that.isPaused;
+      that.card.pauseButton.find('i').text(that.isPaused ? 'play_arrow' : 'pause');
+    });
 
     // card close button
     card.closeButton = $('<button></button>')
@@ -101,7 +129,7 @@ class Viewer {
   **/
   onCreate() {
     // for MDL elements to get instantiated
-    if(!(typeof(componentHandler) === 'undefined')){
+    if (!(typeof (componentHandler) === 'undefined')) {
       componentHandler.upgradeAllRegistered();
     }
   }
@@ -117,26 +145,45 @@ class Viewer {
 
   update(data) {
     let time = Date.now();
-    if( (time - this.lastDataTime)/1000.0 < 1/this.constructor.maxUpdateRate - 5e-4) {
+    if ((time - this.lastDataTime) / 1000.0 < 1 / this.constructor.maxUpdateRate - 5e-4) {
       return;
     }
 
-    if(this.isPaused) { this.onDataPaused(data); return; }
+    if (this.isPaused) { this.onDataPaused(data); return; }
 
     this.lastDataTime = time;
 
+    // console.log(this.listArray);
+
+    if(this.numElem_new != this.numElem_old){
+      this.card.multiArray.empty();
+      this.numElem_old = this.numElem_new;
+
+      for (let i=0; i < this.numElem_new; i++) {
+        let item = $('<li class="mdl-menu__item">' + i + '</li>').appendTo(this.card.multiArray);
+        let that = this;
+        item.click(() => { 
+          this.plotshow = i; 
+          this.data = [
+            new Array(this.size).fill(0),
+            new Array(this.size).fill(0),
+          ];
+          this.ptr=0; });
+      }
+    }
+
     // get rid of the spinner
-    if(this.loaderContainer) {
+    if (this.loaderContainer) {
       this.loaderContainer.remove();
       this.loaderContainer = null;
     }
 
-    if(data._error) {
+    if (data._error) {
       this.error(data._error);
       return;
     }
 
-    if(data._warn) {
+    if (data._warn) {
       this.warn(data._warn);
     }
 
@@ -145,7 +192,7 @@ class Viewer {
   }
 
   error(error_text) {
-    if(!this.card.error) {
+    if (!this.card.error) {
       this.card.error = $("<div></div>").css({
         "background": "#f06060",
         "color": "#ffffff",
@@ -161,7 +208,7 @@ class Viewer {
   }
 
   warn(warn_text) {
-    if(!this.card.warn) {
+    if (!this.card.warn) {
       this.card.warn = $("<div></div>").css({
         "background": "#a08000",
         "color": "#ffffff",
@@ -174,8 +221,8 @@ class Viewer {
   }
 
   tip(tip_text) {
-    if(this.tipHideTimeout) clearTimeout(this.tipHideTimeout);
-    if(!this.tipBox) {
+    if (this.tipHideTimeout) clearTimeout(this.tipHideTimeout);
+    if (!this.tipBox) {
       this.tipBox = $("<div></div>").css({
         "background": "rgba(0,0,0,0.3)",
         "position": "absolute",
@@ -195,8 +242,8 @@ class Viewer {
       }).addClass("monospace").appendTo(this.card);
     }
     let that = this;
-    this.tipBox.css({"display": ""});
-    this.tipHideTimeout = setTimeout(() => that.tipBox.css({"display": "none"}), 1000);
+    this.tipBox.css({ "display": "" });
+    this.tipHideTimeout = setTimeout(() => that.tipBox.css({ "display": "none" }), 1000);
     this.tipBox.text(tip_text);
   }
 }
@@ -233,17 +280,19 @@ Viewer.getDefaultViewerForType = (type) => {
 
   // if type is "package/MessageType", converted it to "package/msgs/MessageType"
   let tokens = type.split("/");
-  if(tokens.length == 2) {
+  if (tokens.length == 2) {
     type = [tokens[0], "msg", tokens[1]].join("/");
   }
 
   // go down the list of registered viewers and return the first match
-  for(let i in Viewer._viewers) {
-    if(Viewer._viewers[i].supportedTypes.includes(type)) {
+  for (let i in Viewer._viewers) {
+    if (Viewer._viewers[i].supportedTypes.includes(type)) {
       return Viewer._viewers[i];
+      return null;
     }
-    if(Viewer._viewers[i].supportedTypes.includes("*")) {
-      return Viewer._viewers[i];
+    if (Viewer._viewers[i].supportedTypes.includes("*")) {
+      // return Viewer._viewers[i];
+      return null;
     }
   }
   return null;
@@ -257,16 +306,16 @@ Viewer.getViewersForType = (type) => {
 
   // if type is "package/MessageType", converted it to "package/msgs/MessageType"
   let tokens = type.split("/");
-  if(tokens.length == 2) {
+  if (tokens.length == 2) {
     type = [tokens[0], "msg", tokens[1]].join("/");
   }
 
   // go down the list of registered viewers and return the first match
-  for(let i in Viewer._viewers) {
-    if(Viewer._viewers[i].supportedTypes.includes(type)) {
+  for (let i in Viewer._viewers) {
+    if (Viewer._viewers[i].supportedTypes.includes(type)) {
       matchingViewers.push(Viewer._viewers[i]);
     }
-    if(Viewer._viewers[i].supportedTypes.includes("*")) {
+    if (Viewer._viewers[i].supportedTypes.includes("*")) {
       matchingViewers.push(Viewer._viewers[i]);
     }
   }

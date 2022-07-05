@@ -7,6 +7,7 @@
         <link rel="stylesheet" href="css/material.indigo-blue.min.css" />
         <link rel="stylesheet" href="css/uPlot.min.css">
         <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/compassChart.css">
         <link href="css/index.css" media="all" rel="stylesheet" type="text/css">
 
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.8.7/nipplejs.js"></script>
@@ -21,6 +22,14 @@
 	      <script type="text/javascript" src="js/gl-matrix.js"></script>
 	      <script type="text/javascript" src="js/litegl.min.js"></script>
         <script type="text/javascript" src="js/index.js" defer></script>
+
+        <!-- <script type="text/javascript" src="js/compassChart.js" defer></script> -->
+
+        <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+        <script src="https://cdn.amcharts.com/lib/5/xy.js"></script>
+        <script src="https://cdn.amcharts.com/lib/5/radar.js"></script>
+        <!-- <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script> -->
+        <!-- <script src="https://cdn.amcharts.com/lib/5/themes/Dark.js"></script> -->
 
         <title>ROSboard</title>
     </head>
@@ -45,7 +54,9 @@
           </div>
           <main class="mdl-layout__content">
             <div class="page-content">
+              <!-- <div class="compass" id="chartdiv1"></div> -->
               <div class="grid">
+                
               </div>
             </div>
           </main>
