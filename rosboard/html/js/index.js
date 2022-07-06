@@ -17,6 +17,7 @@ importJsOnce("js/viewers/PointCloud2Viewer.js");
 importJsOnce("js/viewers/JoystickController.js");
 importJsOnce("js/viewers/Button.js");
 importJsOnce("js/viewers/CompassViewer.js");
+importJsOnce("js/viewers/WindRoseViewer.js");
 
 // GenericViewer must be last
 importJsOnce("js/viewers/GenericViewer.js");

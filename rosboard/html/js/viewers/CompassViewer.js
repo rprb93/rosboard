@@ -17,7 +17,8 @@ class CompassViewer extends Viewer {
 
         this.compass = $('<div class="compass" id="' + this.compassId + '"></div>')
             .css({
-                "height": "250px",
+                "height": "200px",
+                "width": "100%"
             })
             .appendTo(this.viewer);
 
