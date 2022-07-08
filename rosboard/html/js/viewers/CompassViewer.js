@@ -13,7 +13,7 @@ class CompassViewer extends Viewer {
             })
             .appendTo(this.card.content);
 
-        this.compassID = "compass-" + Math.floor(Math.random() * 10000);
+        this.compassId = "compass-" + Math.floor(Math.random() * 10000);
 
         this.compass = $('<div class="compass" id="' + this.compassId + '"></div>')
             .css({
@@ -34,7 +34,7 @@ class CompassViewer extends Viewer {
         $('<td></td>')
             .addClass('mdl-data-table__cell--non-numeric')
             .text("data")
-            .css({ 'width': '40%', 'font-weight': 'bold', 'overflow': 'hidden', 'text-overflow': 'ellipsis' })
+            .css({ 'width': '70%', 'font-weight': 'bold', 'overflow': 'hidden', 'text-overflow': 'ellipsis' })
             .appendTo(tr);
         this.valueField = $('<td></td>')
             .addClass('mdl-data-table__cell--non-numeric')
@@ -200,11 +200,12 @@ class CompassViewer extends Viewer {
 
     onData(msg) {
         this.card.title.text(msg._topic_name);
-        var angle = 360 - 90 - (msg.data[1] * (180 / Math.PI));
+        let angleRaw = msg.data[1] * (180 / Math.PI);
+        var angle = 360 - 90 - angleRaw;
         if (angle < 0){
             angle = angle + 360;
         }
-        this.valueField.text(Math.round(angle * 100) / 100);
+        this.valueField.text(Math.round(angleRaw * 100) / 100);
         this.data = Math.round(angle * 100) / 100;
     }
 }

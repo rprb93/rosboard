@@ -11,15 +11,16 @@ class Viewer {
     * Class constructor.
     * @constructor
   **/
-  constructor(card, topicName, topicType, numElem) {
+  constructor(card, subsIdx, topicName, topicType, plotShow = 0) {
     this.card = card;
     this.isPaused = false;
 
+    this.subsIdx = subsIdx;
     this.topicName = topicName;
     this.topicType = topicType;
-    this.numElem_new = numElem;
-    this.numElem_old = numElem;
-    this.plotshow = 0;
+    this.numElem_new = 0;
+    this.numElem_old = 0;
+    this.plotShow = plotShow;
 
     this.onClose = () => { };
     let that = this;
@@ -33,8 +34,8 @@ class Viewer {
     // card content div
     card.content = $('<div></div>').addClass('card-content').text('').appendTo(card);
 
+    // card Float32MultiArray button
     if (this.topicType === "std_msgs/Float32MultiArray") {
-      // card multiArray button
       let mlArrayId = 'menu-' + Math.floor(Math.random() * 1e6);
 
       card.settingsButton = $('<button id="' + mlArrayId + '"></button>')
@@ -45,18 +46,17 @@ class Viewer {
         .append($('<i></i>').addClass('material-icons').text('expand_more'))
         .appendTo(card.buttons);
 
-      card.multiArray = $('<ul id=ul-'+ mlArrayId + ' class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" style="overflow-y: scroll; max-height: 150px;" \
+      card.multiArray = $('<ul id=ul-' + mlArrayId + ' class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" style="overflow-y: scroll; max-height: 150px;" \
       for="' + mlArrayId + '"></ul>').appendTo(card);
 
-      // console.log(this.listArray)
-      // let listArray = Viewer.getViewersForType(this.topicType);
-      for (let i=0; i < this.numElem; i++) {
+      for (let i = 0; i < this.numElem; i++) {
         let item = $('<li class="mdl-menu__item">' + i + '</li>').appendTo(this.card.multiArray);
         let that = this;
-        item.click(() => { Viewer.onSwitchViewer(that, this.numElem[i]); });
+        item.click(() => {
+          Viewer.onSwitchViewer(that, this.numElem[i]);
+        });
       }
     }
-
 
     // card pause button
     let menuId = 'menu-' + Math.floor(Math.random() * 1e6);
@@ -68,23 +68,17 @@ class Viewer {
       .addClass('mdl-button--colored')
       .append($('<i></i>').addClass('material-icons').text('more_vert'))
       .appendTo(card.buttons);
-    /*card.settingsButton.click(function(e) {
-      console.log("not implemented yet");
-    });*/
 
     card.menu = $('<ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" \
       for="' + menuId + '"></ul>').appendTo(card);
-
-    // <li class="mdl-menu__item">Some Action</li> \
-    // <li class="mdl-menu__item mdl-menu__item--full-bleed-divider">Another Action</li> \
-    // <li disabled class="mdl-menu__item">Disabled Action</li> \
-    // <li class="mdl-menu__item">Yet Another Action</li> \
 
     let viewers = Viewer.getViewersForType(this.topicType);
     for (let i in viewers) {
       let item = $('<li ' + (viewers[i].name === this.constructor.name ? 'disabled' : '') + ' class="mdl-menu__item">' + viewers[i].friendlyName + '</li>').appendTo(this.card.menu);
       let that = this;
-      item.click(() => { Viewer.onSwitchViewer(that, viewers[i]); });
+      item.click(() => {
+        Viewer.onSwitchViewer(that, viewers[i]);
+      });
     }
 
     componentHandler.upgradeAllRegistered();
@@ -153,22 +147,22 @@ class Viewer {
 
     this.lastDataTime = time;
 
-    // console.log(this.listArray);
-
-    if(this.numElem_new != this.numElem_old){
+    if (this.numElem_new != this.numElem_old) {
       this.card.multiArray.empty();
       this.numElem_old = this.numElem_new;
 
-      for (let i=0; i < this.numElem_new; i++) {
+      for (let i = 0; i < this.numElem_new; i++) {
         let item = $('<li class="mdl-menu__item">' + i + '</li>').appendTo(this.card.multiArray);
         let that = this;
-        item.click(() => { 
-          this.plotshow = i; 
+        item.click(() => {
+          this.plotShow = i;
+          Viewer.onSwitchPlot(that, this.plotShow);
           this.data = [
             new Array(this.size).fill(0),
             new Array(this.size).fill(0),
           ];
-          this.ptr=0; });
+          this.ptr = 0;
+        });
       }
     }
 
@@ -267,6 +261,7 @@ Viewer._viewers = [];
 // override this
 Viewer.onClose = (viewerInstance) => { console.log("not implemented; override necessary"); }
 Viewer.onSwitchViewer = (viewerInstance, newViewerType) => { console.log("not implemented; override necessary"); }
+Viewer.onSwitchPlot = (viewerInstance, plotShow) => { console.log("not implemented; override necessary"); }
 
 // not to be overwritten by child class!
 Viewer.registerViewer = (viewer) => {
@@ -299,6 +294,37 @@ Viewer.getDefaultViewerForType = (type) => {
 }
 
 // not to be overwritten by child class!
+Viewer.getViewerForClass = (type, card) => {
+  // gets the viewer class for a given message type (e.g. "std_msgs/msg/String")
+
+  // if type is "package/MessageType", converted it to "package/msgs/MessageType"
+  let tokens = type.split("/");
+  if (tokens.length == 2) {
+    type = [tokens[0], "msg", tokens[1]].join("/");
+  }
+
+  // go down the list of registered viewers and return the first match
+  for (let i in Viewer._viewers) {
+    if (card === "default") {
+      if (Viewer._viewers[i].supportedTypes.includes(type)) {
+        return Viewer._viewers[i];
+      }
+    }
+    else {
+      if (Viewer._viewers[i].supportedTypes.includes(type) && Viewer._viewers[i].friendlyName === card) {
+        return Viewer._viewers[i];
+      }
+    }
+
+    if (Viewer._viewers[i].supportedTypes.includes("*")) {
+      // return Viewer._viewers[i];
+      return null;
+    }
+  }
+  return null;
+}
+
+// not to be overwritten by child class!
 Viewer.getViewersForType = (type) => {
   // gets the viewer classes for a given message type (e.g. "std_msgs/msg/String")
 
@@ -322,4 +348,3 @@ Viewer.getViewersForType = (type) => {
 
   return matchingViewers;
 }
-

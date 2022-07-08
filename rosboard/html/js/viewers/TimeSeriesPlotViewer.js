@@ -28,7 +28,7 @@ class TimeSeriesPlotViewer extends Viewer {
     $('<td></td>')
       .addClass('mdl-data-table__cell--non-numeric')
       .text("data")
-      .css({'width': '40%', 'font-weight': 'bold', 'overflow': 'hidden', 'text-overflow': 'ellipsis'})
+      .css({'width': '70%', 'font-weight': 'bold', 'overflow': 'hidden', 'text-overflow': 'ellipsis'})
       .appendTo(tr);
   this.valueField = $('<td></td>')
       .addClass('mdl-data-table__cell--non-numeric')
@@ -110,10 +110,19 @@ class TimeSeriesPlotViewer extends Viewer {
 
   onData(msg) {
       this.numElem_new = msg.data.length;
-      this.card.title.text(msg._topic_name);
-      this.valueField.text(msg.data);
+      this.card.title.text(msg._topic_name + " - " + this.plotShow);
+
       this.data[0][this.ptr] = Math.floor(Date.now() / 10)/ 100;
-      this.data[1][this.ptr] = msg.data[this.plotshow];
+      
+      if(msg._topic_name == "/Wind" && this.plotShow == 1){
+        let angleDeg= (msg.data[1] * (180 / Math.PI));
+        this.data[1][this.ptr] = angleDeg;
+        this.valueField.text(Math.round(angleDeg * 100) / 100);
+      }
+      else{
+        this.data[1][this.ptr] = msg.data[this.plotShow];
+        this.valueField.text(Math.round(msg.data[this.plotShow] * 100) / 100);
+      }
       this.ptr = (this.ptr + 1) % this.size;
   }
 }

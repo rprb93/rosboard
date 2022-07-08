@@ -13,7 +13,7 @@ class WindRoseViewer extends Viewer {
             })
             .appendTo(this.card.content);
 
-        this.roseID = "rose-" + Math.floor(Math.random() * 10000);
+        this.roseId = "rose-" + Math.floor(Math.random() * 10000);
 
         this.compass = $('<div class="compass" id="' + this.roseId + '"></div>')
             .css({
@@ -28,132 +28,283 @@ class WindRoseViewer extends Viewer {
             .css({ 'width': '100%', 'table-layout': 'fixed' })
             .appendTo(this.viewer);
 
-        // let tr = $('<tr></tr>')
-        //     .appendTo(this.dataTable);
+        this.size = 500;
+        this.data = [
+            new Array(this.size).fill(0),
+            new Array(this.size).fill(0),
+        ];
+        this.ptr = 0;
+        this.seriesWind = [];
 
-        // $('<td></td>')
-        //     .addClass('mdl-data-table__cell--non-numeric')
-        //     .text("data")
-        //     .css({ 'width': '40%', 'font-weight': 'bold', 'overflow': 'hidden', 'text-overflow': 'ellipsis' })
-        //     .appendTo(tr);
-        // this.valueField = $('<td></td>')
-        //     .addClass('mdl-data-table__cell--non-numeric')
-        //     .addClass('monospace')
-        //     .css({ 'overflow': 'hidden', 'text-overflow': 'ellipsis' })
-        //     .appendTo(tr);
-
-        this.data = [0.0];
 
         // Create root element
         // https://www.amcharts.com/docs/v5/getting-started/#Root_element
         var root = am5.Root.new(this.roseId);
 
-        // Generate and set data
-        // https://www.amcharts.com/docs/v5/charts/radar-chart/#Setting_data
-        var cat = -1;
-        var value = 10;
+        function arrangeWindDirection(data) {
+            let dirN = 0;
+            let dirNE = 0;
+            let dirE = 0;
+            let dirSE = 0;
+            let dirS = 0;
+            let dirSW = 0;
+            let dirW = 0;
+            let dirNW = 0;
+            let serieDir = [];
+            let numElem = data.length;
+            let size = 100;
 
-        function generateData() {
-            value = Math.round(Math.random() * 10);
-            cat++;
-            return {
-                category: "cat" + cat,
-                value: value
-            };
-        }
 
-        function generateDatas(count) {
-            cat = -1;
-            var data = [];
-            for (var i = 0; i < count; ++i) {
-                let aux = generateData();
-                console.log(aux);
-                data.push(aux);
-            }
-            return data;
-        }
-        
-        function generateHist(wind) {
-            var data = [];
-
-            for(let i = 0; i < wind[0].length; i++){
-                if(wind[1][i] >= 0 && wind[1][i] < 45 ){
-                    let aux = {
-                        category: "N",
-                        value: wind[0][i]
-                    };
-                    data.push(aux);
+            for (let i = 0; i < numElem; i++) {
+                if (data[i] >= 0 && data[i] < 45) {
+                    dirN++;
                 }
-                else if(wind[1][i] >= 45 && wind[1][i] < 90 ){
-                    let aux = {
-                        category: "NE",
-                        value: wind[0][i]
-                    };
-                    data.push(aux);
+                else if (data[i] >= 45 && data[i] < 90) {
+                    dirNE++;
                 }
-                else if(wind[1][i] >= 90 && wind[1][i] < 135 ){
-                    let aux = {
-                        category: "E",
-                        value: wind[0][i]
-                    };
-                    data.push(aux);
+                else if (data[i] >= 90 && data[i] < 135) {
+                    dirE++;
                 }
-                else if(wind[1][i] >= 135 && wind[1][i] < 180 ){
-                    let aux = {
-                        category: "SE",
-                        value: wind[0][i]
-                    };
-                    data.push(aux);
+                else if (data[i] >= 135 && data[i] < 180) {
+                    dirSE++;
                 }
-                else if(wind[1][i] >= 180 && wind[1][i] < 225 ){
-                    let aux = {
-                        category: "S",
-                        value: wind[0][i]
-                    };
-                    data.push(aux);
+                else if (data[i] >= 180 && data[i] < 225) {
+                    dirS++;
                 }
-                else if(wind[1][i] >= 225 && wind[1][i] < 270 ){
-                    let aux = {
-                        category: "SW",
-                        value: wind[0][i]
-                    };
-                    data.push(aux);
+                else if (data[i] >= 225 && data[i] < 270) {
+                    dirSW++;
                 }
-                else if(wind[1][i] >= 270 && wind[1][i] < 315 ){
-                    let aux = {
-                        category: "W",
-                        value: wind[0][i]
-                    };
-                    data.push(aux);
+                else if (data[i] >= 270 && data[i] < 315) {
+                    dirW++;
                 }
-                else if(wind[1][i] >= 315 && wind[1][i] < 360 ){
-                    let aux = {
-                        category: "NW",
-                        value: wind[0][i]
-                    };
-                    data.push(aux);
+                else if (data[i] >= 315 && data[i] < 360) {
+                    dirNW++;
                 }
             }
 
-            return data;
+            if (dirN != 0) {
+                let aux = {
+                    category: "N",
+                    value: dirN / size * 100
+                };
+                serieDir.push(aux);
+            }
+            if (dirNE != 0) {
+                let aux = {
+                    category: "NE",
+                    value: dirNE / size * 100
+                };
+                serieDir.push(aux);
+            }
+            if (dirE != 0) {
+                let aux = {
+                    category: "E",
+                    value: dirE / size * 100
+                };
+                serieDir.push(aux);
+            }
+            if (dirSE != 0) {
+                let aux = {
+                    category: "SE",
+                    value: dirSE / size * 100
+                };
+                serieDir.push(aux);
+            }
+            if (dirS != 0) {
+                let aux = {
+                    category: "S",
+                    value: dirS / size * 100
+                };
+                serieDir.push(aux);
+            }
+            if (dirSW != 0) {
+                let aux = {
+                    category: "SW",
+                    value: dirSW / size * 100
+                };
+                serieDir.push(aux);
+            }
+            if (dirW != 0) {
+                let aux = {
+                    category: "W",
+                    value: dirW / size * 100
+                };
+                serieDir.push(aux);
+            }
+            if (dirNW != 0) {
+                let aux = {
+                    category: "NW",
+                    value: dirNW / size * 100
+                };
+                serieDir.push(aux);
+            }
+
+            return serieDir;
+
+        }
+
+        function arrangeWindData(data) {
+            // agrupar em funcao da intensidade do vento
+            var series0_20 = [];
+            var series20_50 = [];
+            var series50_100 = [];
+            var series100_150 = [];
+            var series150_200 = [];
+            var series200_250 = [];
+            var series250_300 = [];
+            var series300_350 = [];
+            var series350_400 = [];
+            var series400_450 = [];
+            var series450_plus = [];
+            let seriesSpeed = [];
+
+            for (let i = 0; i < data[0].length; i++) {
+                if (data[0][i] > 0 && data[0][i] < 20) {
+                    series0_20.push(data[1][i]);
+                }
+                else if (data[0][i] >= 20 && data[0][i] < 50) {
+                    series20_50.push(data[1][i]);
+                }
+                else if (data[0][i] >= 50 && data[0][i] < 100) {
+                    series50_100.push(data[1][i]);
+                }
+                else if (data[0][i] >= 100 && data[0][i] < 150) {
+                    series100_150.push(data[1][i]);
+                }
+                else if (data[0][i] >= 150 && data[0][i] < 200) {
+                    series150_200.push(data[1][i]);
+                }
+                else if (data[0][i] >= 200 && data[0][i] < 250) {
+                    series200_250.push(data[1][i]);
+                }
+                else if (data[0][i] >= 250 && data[0][i] < 300) {
+                    series250_300.push(data[1][i]);
+                }
+                else if (data[0][i] >= 300 && data[0][i] < 350) {
+                    series300_350.push(data[1][i]);
+                }
+                else if (data[0][i] >= 350 && data[0][i] < 400) {
+                    series350_400.push(data[1][i]);
+                }
+                else if (data[0][i] >= 400 && data[0][i] < 450) {
+                    series400_450.push(data[1][i]);
+                }
+                else if (data[0][i] >= 450) {
+                    series450_plus.push(data[1][i]);
+                }
+            }
+
+            if (series0_20.length != 0) {
+                seriesSpeed.push(
+                    {
+                        velName: "0-20cm/s",
+                        serieName: "0_20",
+                        value: arrangeWindDirection(series0_20)
+                    }
+                );
+            }
+            if (series20_50.length != 0) {
+                seriesSpeed.push(
+                    {
+                        serieName: "20_50",
+                        value: arrangeWindDirection(series20_50)
+                    }
+                );
+            }
+            if (series50_100.length != 0) {
+                seriesSpeed.push(
+                    {
+                        velName: "50-100cm/s",
+                        serieName: "50_100",
+                        value: arrangeWindDirection(series50_100)
+                    }
+                );
+            }
+            if (series100_150.length != 0) {
+                seriesSpeed.push(
+                    {
+                        serieName: "100_150",
+                        value: arrangeWindDirection(series100_150)
+                    }
+                );
+            }
+            if (series150_200.length != 0) {
+                seriesSpeed.push(
+                    {
+                        serieName: "150_200",
+                        value: arrangeWindDirection(series150_200)
+                    }
+                );
+            }
+            if (series200_250.length != 0) {
+                seriesSpeed.push(
+                    {
+                        serieName: "200_250",
+                        value: arrangeWindDirection(series200_250)
+                    }
+                );
+            }
+            if (series250_300.length != 0) {
+                seriesSpeed.push(
+                    {
+                        serieName: "250_300",
+                        value: arrangeWindDirection(series250_300)
+                    }
+                );
+            }
+            if (series300_350.length != 0) {
+                seriesSpeed.push(
+                    {
+                        serieName: "300_350",
+                        value: arrangeWindDirection(series300_350)
+                    }
+                );
+            }
+            if (series350_400.length != 0) {
+                seriesSpeed.push(
+                    {
+                        serieName: "350_400",
+                        value: arrangeWindDirection(series350_400)
+                    }
+                );
+            }
+            if (series400_450.length != 0) {
+                seriesSpeed.push(
+                    {
+                        serieName: "400_450",
+                        value: arrangeWindDirection(series400_450)
+                    }
+                );
+            }
+            if (series450_plus.length != 0) {
+                seriesSpeed.push(
+                    {
+                        serieName: "450_plus",
+                        value: arrangeWindDirection(series450_plus)
+                    }
+                );
+            }
+            return seriesSpeed;
         }
 
         // Create chart
         // https://www.amcharts.com/docs/v5/charts/radar-chart/
-        var chart = root.container.children.push(am5radar.RadarChart.new(root, {
-            panX: false,
-            panY: false
-            // wheelX: "panX",
-            // wheelY: "zoomX"
-        }));
+        var chart = root.container.children.push(am5radar.RadarChart.new(root, {}));
 
         // Create axes and their renderers
         // https://www.amcharts.com/docs/v5/charts/radar-chart/#Adding_axes
-        var xRenderer = am5radar.AxisRendererCircular.new(root, {});
-        xRenderer.labels.template.setAll({
-            radius: 10
+        var xRenderer = am5radar.AxisRendererCircular.new(root, {
+            startAngle: -112.5,
+            endAngle: 247.5,
+            cellStartLocation: 0.2,
+            cellEndLocation: 0.8
         });
-
+        xRenderer.labels.template.setAll({
+            radius: 5
+        });
+        xRenderer.grid.template.setAll({
+            location: 0.5
+        });
         var xAxis = chart.xAxes.push(am5xy.CategoryAxis.new(root, {
             maxDeviation: 0,
             categoryField: "category",
@@ -161,79 +312,153 @@ class WindRoseViewer extends Viewer {
             tooltip: am5.Tooltip.new(root, {})
         }));
 
+        var yRenderer = am5radar.AxisRendererRadial.new(root, {});
+        yRenderer.labels.template.setAll({
+            fontSize: 10        });
         var yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, {
-            renderer: am5radar.AxisRendererRadial.new(root, {})
+            renderer: yRenderer,
+            numberFormat: "#.0'%'",
         }));
 
         // Create series
         // https://www.amcharts.com/docs/v5/charts/radar-chart/#Adding_series
-        for (var i = 0; i < 5; i++) {
-            var series = chart.series.push(am5radar.RadarColumnSeries.new(root, {
-                stacked: true,
-                name: "Series " + i,
+        var series = [];
+        let seriesColor = ["#ed1b2e", "#d7d7d8", "#ecb731", "#8ec06c", "#56a0d3", "#7f181b", "#6639b7", "#fff200", "#ed008c", "#ea4c89", "#003265"];
+        let seriesField = ["0_20", "20_50", "50_100", "100_150", "150_200", "200_250", "250_300", "300_350", "350_400", "400_450", "450_plus"];
+
+        for (let i = 0; i < seriesField.length; i++) {
+            series[seriesField[i]] = chart.series.push(am5radar.RadarColumnSeries.new(root, {
+                stacked: false,
+                name: seriesField[i],
                 xAxis: xAxis,
                 yAxis: yAxis,
                 valueYField: "value",
-                categoryXField: "category"
+                clustered: false,
+                categoryXField: "category",
+                fill: am5.color(seriesColor[i]),
+                stroke: am5.color(seriesColor[i])
             }));
-
-            series.set("stroke", root.interfaceColors.get("background"));
-            series.columns.template.setAll({
+            series[seriesField[i]].set("stroke", root.interfaceColors.get("background"));
+            series[seriesField[i]].columns.template.setAll({
                 width: am5.p100,
                 strokeOpacity: 0.1,
-                tooltipText: "{name}: {valueY}"
+                tooltipText: "{name}: {valueY}%"
             });
-
-            series.data.setAll(generateDatas(12));
-            series.appear(1000);
         }
-
-        // var data1 = generateDatas(5);
-        this.size = 500;
-        this.data = [
-            new Array(this.size).fill(0),
-            new Array(this.size).fill(0),
-        ];
         
-        this.ptr = 0;
+        var dirCar = [
+            {category: "N"},
+            {category: "NE"},
+            {category: "E"},
+            {category: "SE"},
+            {category: "S"},
+            {category: "SW"},
+            {category: "W"},
+            {category: "NW"}
+        ];
+        xAxis.data.setAll(dirCar);
 
-        // xAxis.data.setAll(data1);
+        let legendArrayLeft = [
+            { 
+                serieName: "0.0 - 0.2m/s",
+                color: "#ed1b2e"
+            },
+            { 
+                serieName: "0.2 - 0.5m/s",
+                color: "#d7d7d8"
+            },
+            { 
+                serieName: "0.5 - 1.0m/s",
+                color: "#ecb731"
+            },
+            { 
+                serieName: "1.0 - 1.5m/s",
+                color: "#8ec06c"
+            },
+            { 
+                serieName: "1.5 - 2.0m/s",
+                color: "#56a0d3"
+            },
+            { 
+                serieName: "2.0 - 2.5m/s",
+                color: "#7f181b"
+            }
+        ];
+        let legendArrayRight = [
+            { 
+                serieName: "2.5 - 3.0m/s",
+                color: "#6639b7"
+            },
+            { 
+                serieName: "3.0 - 3.5m/s",
+                color: "#fff200"
+            },
+            { 
+                serieName: "3.5 - 4.0m/s",
+                color: "#ed008c"
+            },
+            { 
+                serieName: "4.0 - 4.5m/s",
+                color: "#ea4c89"
+            },
+            { 
+                serieName: "4.5+ m/s",
+                color: "#003265"
+            }
+        ];
+        var legendLeft = chart.children.push(am5.Legend.new(root, {
+            nameField: "serieName",
+            fillField: "color",
+            strokeField: "color",
+            centerY: am5.p50,
+            y: am5.p50,
+            x:20,
+            layout: root.verticalLayout,
+        }));
+        legendLeft.labels.template.setAll({
+            fontSize: 10
+        });
+        legendLeft.markers.template.setAll({
+            width: 10,
+            height: 10
+        });
+        legendLeft.data.setAll(legendArrayLeft);
+
+        var legendRight = chart.children.push(am5.Legend.new(root, {
+            nameField: "serieName",
+            fillField: "color",
+            strokeField: "color",
+            centerY: am5.p50,
+            y: am5.p50,
+            x: 320,
+            layout: root.verticalLayout,
+        }));
+        legendRight.labels.template.setAll({
+            fontSize: 10
+        });
+        legendRight.markers.template.setAll({
+            width: 10,
+            height: 10
+        });
+        legendRight.data.setAll(legendArrayRight);
 
         setInterval(() => {
-            let aux = generateHist(this.data);
-            xAxis.data.setAll(aux);
-            // var newAngle = this.data;
-            // chart.animate({
-            //     key: "startAngle",
-            //     to: newAngle,
-            //     duration: 1000,
-            //     easing: am5.ease.out(am5.ease.cubic)
-            // });
-            // chart.animate({
-            //     key: "endAngle",
-            //     to: newAngle + 360,
-            //     duration: 1000,
-            //     easing: am5.ease.out(am5.ease.cubic)
-            // });
-            // axisDataItemN.animate({
-            //     key: "value",
-            //     to: am5.math.normalizeAngle(-90 - newAngle),
-            //     duration: 1000,
-            //     easing: am5.ease.out(am5.ease.cubic)
-            // });
-            // axisDataItemS.animate({
-            //     key: "value",
-            //     to: am5.math.normalizeAngle(90 - newAngle),
-            //     duration: 1000,
-            //     easing: am5.ease.out(am5.ease.cubic)
-            // });
 
-        }, 2000);
+            let seriesWind = arrangeWindData(this.data);
+            try {
+                for (let i = 0; i < seriesWind.length; i++) {
+                    series[seriesWind[i].serieName].data.setAll(seriesWind[i].value);
+                }
+            }
+            catch (error) {
+                console.log(error);
+            }
+        }, 200);
     }
 
     onData(msg) {
         this.card.title.text(msg._topic_name);
-        var angle = 360 - 90 - (msg.data[1] * (180 / Math.PI));
+        var angle = msg.data[1] * (180 / Math.PI);
         if (angle < 0) {
             angle = angle + 360;
         }
