@@ -7,10 +7,17 @@ class WebSocketV1Transport {
       this.onTopics = onTopics ? onTopics.bind(this) : null;
       this.onSystem = onSystem ? onSystem.bind(this) : null;
       this.ws = null;
-      this.joystickX = 0.0;
-      this.joystickY = 0.0;
-      this.button_1 = 0.0;
-      this.button_2 = 0.0;
+
+      this.btAction00;
+      this.btAction01;
+      this.btAction02;
+      this.btAction10;
+      this.btAction11;
+      this.btAction12;
+      this.btAction20;
+      this.btAction21;
+      this.btAction22;
+      this.btActionRosbag;
     }
   
     connect() {
@@ -50,18 +57,31 @@ class WebSocketV1Transport {
             [WebSocketV1Transport.PONG_TIME]: Date.now(),
           }]));
         }
-        else if(wsMsgType === WebSocketV1Transport.MSG_MSG && that.onMsg) that.onMsg(data[1]);
+        else if(wsMsgType === WebSocketV1Transport.MSG_MSG && that.onMsg) 
+          that.onMsg(data[1]);
         else if(wsMsgType === WebSocketV1Transport.MSG_TOPICS && that.onTopics) that.onTopics(data[1]);
         else if(wsMsgType === WebSocketV1Transport.MSG_SYSTEM && that.onSystem) that.onSystem(data[1]);
         else console.log("received unknown message: " + wsmsg.data);
 
-        this.send(JSON.stringify([WebSocketV1Transport.JOY_MSG, {
-          ["x"]: that.joystickX.toFixed(3),
-          ["y"]: that.joystickY.toFixed(3),}]));
+        // this.send(JSON.stringify([WebSocketV1Transport.JOY_MSG, {
+        //   ["x"]: that.joystickX.toFixed(3),
+        //   ["y"]: that.joystickY.toFixed(3),}]));
 
         this.send(JSON.stringify([WebSocketV1Transport.BUTTON_MSG, {
-          ["1"]: that.button_1.toFixed(3),
-          ["2"]: that.button_2.toFixed(3),}]));
+          ["00"]: that.btAction00,
+          ["01"]: that.btAction01,
+          ["02"]: that.btAction02,
+          ["10"]: that.btAction10,
+          ["11"]: that.btAction11,
+          ["12"]: that.btAction12,
+          ["20"]: that.btAction20,
+          ["21"]: that.btAction21,
+          ["22"]: that.btAction22
+        }]));
+
+        this.send(JSON.stringify([WebSocketV1Transport.ROSBAG_MSG, {
+          ["action"]: that.btActionRosbag,
+        }]));
 
       }
     }
@@ -88,6 +108,10 @@ class WebSocketV1Transport {
       this.button_2 = button_2;
     }
 
+    update_rosbag(action){
+      this.btActionRosbag = action;
+    }
+
   }
   
   WebSocketV1Transport.MSG_PING = "p";
@@ -104,3 +128,4 @@ class WebSocketV1Transport {
 
   WebSocketV1Transport.JOY_MSG = "j";
   WebSocketV1Transport.BUTTON_MSG = "b";
+  WebSocketV1Transport.ROSBAG_MSG = "a";

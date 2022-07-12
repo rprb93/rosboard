@@ -439,3 +439,7 @@ input, textarea, *[contenteditable=true] {
     transform: rotate(360deg);
   }
 }
+
+.newpages {
+  background:none;
+}

@@ -18,6 +18,7 @@ else:
 
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Empty
+from std_msgs.msg import UInt8
 from rosgraph_msgs.msg import Log
 
 from rosboard.serialization import ros2dict
@@ -61,6 +62,7 @@ class ROSBoardNode(object):
 
         self.twist_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=100)
         self.empty_pub = rospy.Publisher('/button', Empty, queue_size=100)
+        self.rosbag_pub = rospy.Publisher('/rosbagAction', UInt8, queue_size=100)
 
         tornado_settings = {
             'debug': True,
@@ -98,9 +100,11 @@ class ROSBoardNode(object):
 
         # loop to send client joy message to ros topic
 
-        threading.Thread(target = self.joy_loop, daemon = True).start()
+        # threading.Thread(target = self.joy_loop, daemon = True).start()
 
         threading.Thread(target = self.button_loop, daemon = True).start()
+
+        threading.Thread(target = self.rosbag_loop, daemon = True).start()
 
         self.lock = threading.Lock()
 
@@ -132,6 +136,37 @@ class ROSBoardNode(object):
         except Exception as e:
             rospy.logerr(str(e))
             return None
+
+    def rosbag_loop(self):
+        """
+        Receving Rosbag Action message from client
+        """
+
+        msg = UInt8()
+        rosbagAction = 0
+        last_rosbagAction = 0
+
+        msg.data = 0
+
+        while(True):
+            time.sleep(1)
+            self.rosbag_pub.publish(msg)
+            
+            if not isinstance(ROSBoardSocketHandler.rosbagAction_msg, dict):
+                continue
+            
+            if 'action' in ROSBoardSocketHandler.rosbagAction_msg:
+                rosbagAction = float(ROSBoardSocketHandler.rosbagAction_msg['action'])
+
+
+            if (rosbagAction == 1) and (last_rosbagAction == 0):
+                print("Rosbag Starting")
+                msg.data = 1
+            elif (rosbagAction == 0) and (last_rosbagAction == 1):
+                print("Rosbag Stoping")
+                msg.data = 0
+
+            last_rosbagAction = rosbagAction
 
     def button_loop(self):
         """

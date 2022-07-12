@@ -28,8 +28,16 @@ var snackbarContainer = document.querySelector('#demo-toast-example');
 
 let subscriptions = {};
 let subsGroup = new Object();
+let localStorageSubsName = "subsPage1";
 
-if (window.localStorage && window.localStorage.subscriptions) {
+if(window.location.pathname === "/index_page_1.html"){
+  localStorageSubsName = "subsPage2";
+}
+else if(window.location.pathname === "/" || window.location.pathname === "/index.html"){
+  localStorageSubsName = "subsPage1";
+}
+
+if (window.localStorage && window.localStorage[localStorageSubsName]) {
   // window.localStorage.clear();
   if (window.location.search && window.location.search.indexOf("reset") !== -1) {
     subscriptions = {};
@@ -37,7 +45,7 @@ if (window.localStorage && window.localStorage.subscriptions) {
     window.location.href = "?";
   } else {
     try {
-      subscriptions = JSON.parse(window.localStorage.subscriptions);
+      subscriptions = JSON.parse(window.localStorage[localStorageSubsName]);
     } catch (e) {
       console.log(e);
       subscriptions = {};
@@ -76,7 +84,7 @@ function updateStoredSubscriptions() {
         dataIdx: subscriptions[subsIdx].dataIdx
       };
     }
-    window.localStorage['subscriptions'] = JSON.stringify(storedSubscriptions);
+    window.localStorage[localStorageSubsName] = JSON.stringify(storedSubscriptions);
   }
 }
 
@@ -116,16 +124,6 @@ let onMsg = function (msg) {
       break;
     }
   }
-
-
-
-  // if (!subscriptions[msg._topic_name]) {
-  //   console.log("Received unsolicited message", msg);
-  // } else if (!subscriptions[msg._topic_name].viewer) {
-  //   console.log("Received msg but no viewer", msg);
-  // } else {
-  //   subscriptions[msg._topic_name].viewer.update(msg);
-  // }
 }
 
 let currentTopics = {};

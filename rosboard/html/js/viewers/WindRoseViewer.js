@@ -28,7 +28,7 @@ class WindRoseViewer extends Viewer {
             .css({ 'width': '100%', 'table-layout': 'fixed' })
             .appendTo(this.viewer);
 
-        this.size = 500;
+        this.size = 200;
         this.data = [
             new Array(this.size).fill(0),
             new Array(this.size).fill(0),
@@ -314,10 +314,13 @@ class WindRoseViewer extends Viewer {
 
         var yRenderer = am5radar.AxisRendererRadial.new(root, {});
         yRenderer.labels.template.setAll({
-            fontSize: 10        });
+            fontSize: 10
+            // minGridDistance: 1
+        });
         var yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, {
             renderer: yRenderer,
             numberFormat: "#.0'%'",
+            extraMax: 0.1
         }));
 
         // Create series
@@ -412,7 +415,8 @@ class WindRoseViewer extends Viewer {
             strokeField: "color",
             centerY: am5.p50,
             y: am5.p50,
-            x:20,
+            centerX:am5.percent(50),
+            x: am5.percent(15),
             layout: root.verticalLayout,
         }));
         legendLeft.labels.template.setAll({
@@ -430,7 +434,9 @@ class WindRoseViewer extends Viewer {
             strokeField: "color",
             centerY: am5.p50,
             y: am5.p50,
-            x: 320,
+            centerX:am5.percent(50),
+            x: am5.percent(100),
+            // position: "right",
             layout: root.verticalLayout,
         }));
         legendRight.labels.template.setAll({

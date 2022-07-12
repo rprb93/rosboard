@@ -19,23 +19,40 @@ class MapViewer extends Viewer {
       })
       .appendTo(this.viewer);
 
-    this.mapLeaflet = L.map(this.mapId).setView([51.505,-0.09], 15);
+    this.mapLeaflet = L.map(this.mapId).setView([51.505,-0.09], 18);
 
     this.mapLeaflet.dragging.disable();
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    //   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    // }).addTo(this.mapLeaflet);
+
+    L.tileLayer('mapTiles/{z}/{x}/{y}.png', {
+      minZoom: 16
     }).addTo(this.mapLeaflet);
 
     this.marker = null;
+    this.trajectory = null; 
   }
 
   onData(msg) {
       this.card.title.text(msg._topic_name);
-      if(this.marker) this.mapLeaflet.removeLayer(this.marker);
-
-      this.marker = L.marker([msg.latitude, msg.longitude]);
+      if(this.marker) 
+        this.mapLeaflet.removeLayer(this.marker);
+      this.marker = L.marker([msg.latitude, msg.longitude], {
+        
+      });
       this.marker.addTo(this.mapLeaflet);
+
+      this.trajectory = L.circle([msg.latitude, msg.longitude], {
+        color: 'red',
+        fillColor: 'red',
+        fillOpacity: 1,
+        radius: 0.1
+      });
+      this.trajectory.addTo(this.mapLeaflet);
+
+
       this.mapLeaflet.setView([msg.latitude, msg.longitude]);
   }
 }
