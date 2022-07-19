@@ -198,10 +198,12 @@ class ROSBoardSocketHandler(tornado.websocket.WebSocketHandler):
         # Button
         elif argv[0] == ROSBoardSocketHandler.BUTTON_MSG:
             ROSBoardSocketHandler.button_msg = argv[1]
+            # print(argv[1])
 
         # Button
         elif argv[0] == ROSBoardSocketHandler.ROSBAG_MSG:
             ROSBoardSocketHandler.rosbagAction_msg = argv[1]
+            # print(argv[1])
 
 ROSBoardSocketHandler.MSG_PING = "p";
 ROSBoardSocketHandler.MSG_PONG = "q";

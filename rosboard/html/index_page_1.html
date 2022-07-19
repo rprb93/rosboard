@@ -11,7 +11,9 @@
   <link rel="stylesheet" href="css/leaflet.css">
   <link href="css/index.css" media="all" rel="stylesheet" type="text/css">
 
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.8.7/nipplejs.js"></script>
+  <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.8.7/nipplejs.js"></script> -->
+  <script type="text/javascript" src="js/nipplejs.js"></script>
+
   <script type="text/javascript" src="js/json5.min.js"></script>
   <script type="text/javascript" src="js/uPlot.iife.min.js"></script>
   <script type="text/javascript" src="js/jquery.transit.min.js"></script>
@@ -45,9 +47,12 @@
   <script type="text/javascript" src="js/transports/WebSocketV1Transport.js"></script>
   <script type="text/javascript" src="js/index.js" defer></script>
 
-  <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
-  <script src="https://cdn.amcharts.com/lib/5/xy.js"></script>
-  <script src="https://cdn.amcharts.com/lib/5/radar.js"></script>
+  <!-- <script src="https://cdn.amcharts.com/lib/5/index.js"></script> -->
+  <script type="text/javascript" src="js/amcharts.index.js"></script>
+  <!-- <script src="https://cdn.amcharts.com/lib/5/xy.js"></script> -->
+  <script type="text/javascript" src="js/amcharts.xy.js"></script>
+  <!-- <script src="https://cdn.amcharts.com/lib/5/radar.js"></script> -->
+  <script src="js/amcharts.radar.js"></script>
   <!-- <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script> -->
   <!-- <script src="https://cdn.amcharts.com/lib/5/themes/Dark.js"></script> -->
 
@@ -63,7 +68,7 @@
         <span class="mdl-layout-title">ROSboard</span>
         <!-- Add spacer, to align navigation to the right -->
         <div class="mdl-layout-spacer"></div>
-        <nav class="mdl-navigation mdl-layout--large-screen-only newpages">
+        <nav class="mdl-navigation newpages">
           <a class="mdl-navigation__link" href="index.html">Page 1</a>
           <a class="mdl-navigation__link" href="index_page_1.html">Page 2</a>
         </nav>

@@ -98,12 +98,12 @@ class RosbagViewer extends Viewer {
       
 
     let btActionRosbag = 0.0;
-    document.getElementById("btRosbagStart").onmousedown = function () {
+    document.getElementById("btRosbagStart").onclick = function () {
       btActionRosbag = 1.0;
       currentTransport.update_rosbag(btActionRosbag);
     };
 
-    document.getElementById("btRosbagStop").onmouseup = function () {
+    document.getElementById("btRosbagStop").onclick = function () {
       btActionRosbag = 0.0;
       currentTransport.update_rosbag(btActionRosbag);
     };

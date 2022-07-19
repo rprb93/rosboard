@@ -8,16 +8,21 @@ class WebSocketV1Transport {
       this.onSystem = onSystem ? onSystem.bind(this) : null;
       this.ws = null;
 
-      this.btAction00;
-      this.btAction01;
-      this.btAction02;
-      this.btAction10;
-      this.btAction11;
-      this.btAction12;
-      this.btAction20;
-      this.btAction21;
-      this.btAction22;
+      this.btAction = {};
+      //   button00: 0,
+      //   button01: 0,
+      //   button02: 0,
+      //   button10: 0,
+      //   button11: 0,
+      //   button12: 0,
+      //   button20: 0,
+      //   button21: 0,
+      //   button22: 0
+      // };
+
       this.btActionRosbag;
+
+      // this.test = 0;
     }
   
     connect() {
@@ -68,15 +73,15 @@ class WebSocketV1Transport {
         //   ["y"]: that.joystickY.toFixed(3),}]));
 
         this.send(JSON.stringify([WebSocketV1Transport.BUTTON_MSG, {
-          ["00"]: that.btAction00,
-          ["01"]: that.btAction01,
-          ["02"]: that.btAction02,
-          ["10"]: that.btAction10,
-          ["11"]: that.btAction11,
-          ["12"]: that.btAction12,
-          ["20"]: that.btAction20,
-          ["21"]: that.btAction21,
-          ["22"]: that.btAction22
+          ["00"]: that.btAction["button00"],
+          ["01"]: that.btAction["button01"],
+          ["02"]: that.btAction["button02"],
+          ["10"]: that.btAction["button10"],
+          ["11"]: that.btAction["button11"],
+          ["12"]: that.btAction["button12"],
+          ["20"]: that.btAction["button20"],
+          ["21"]: that.btAction["button21"],
+          ["22"]: that.btAction["button22"],
         }]));
 
         this.send(JSON.stringify([WebSocketV1Transport.ROSBAG_MSG, {
@@ -103,9 +108,41 @@ class WebSocketV1Transport {
       this.joystickY = joystickY;
     }
 
-    update_button({button_1, button_2}) {
-      this.button_1 = button_1;
-      this.button_2 = button_2;
+    update_button(button) {
+      if(!this.btAction){
+        this.btAction = {
+          button00: 0,
+          button01: 0,
+          button02: 0,
+          button10: 0,
+          button11: 0,
+          button12: 0,
+          button20: 0,
+          button21: 0,
+          button22: 0
+        };
+      }
+      let keys = Object.keys(button);
+      let value = this.btAction[keys];
+
+      if(value == 0){
+        this.btAction[keys] = 1;
+      }
+      else{
+        this.btAction[keys] = 0;
+      }
+
+      if(keys[0] === "button01"){
+        if(this.btAction[keys] == 1){
+          this.btAction["button00"] = 0;
+        }
+      }
+
+      if(keys[0] === "button00"){
+        if(this.btAction[keys] == 1){
+          this.btAction["button01"] = 0;
+        }
+      }
     }
 
     update_rosbag(action){
