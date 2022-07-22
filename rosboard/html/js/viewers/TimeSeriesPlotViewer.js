@@ -114,15 +114,16 @@ class TimeSeriesPlotViewer extends Viewer {
 
       this.data[0][this.ptr] = Math.floor(Date.now() / 10)/ 100;
       
-      if(msg._topic_name == "/Wind" && this.plotShow == 1){
-        let angleDeg= (msg.data[1] * (180 / Math.PI));
-        this.data[1][this.ptr] = angleDeg;
-        this.valueField.text(Math.round(angleDeg * 100) / 100);
-      }
-      else{
+      // if(msg._topic_name == "/Wind" && this.plotShow == 0){
+      //   let angleDeg= (msg.data[1] * (180 / Math.PI));
+      //   this.data[1][this.ptr] = angleDeg;
+      //   this.valueField.text(Math.round(angleDeg * 100) / 100);
+      // }
+      // else{
         this.data[1][this.ptr] = msg.data[this.plotShow];
         this.valueField.text(Math.round(msg.data[this.plotShow] * 100) / 100);
-      }
+        // this.valueField.text("sdfzsdf");
+      // }
       this.ptr = (this.ptr + 1) % this.size;
   }
 }

@@ -28,7 +28,7 @@ class WindRoseViewer extends Viewer {
             .css({ 'width': '100%', 'table-layout': 'fixed' })
             .appendTo(this.viewer);
 
-        this.size = 200;
+        this.size = 100;
         this.data = [
             new Array(this.size).fill(0),
             new Array(this.size).fill(0),
@@ -159,37 +159,37 @@ class WindRoseViewer extends Viewer {
             let seriesSpeed = [];
 
             for (let i = 0; i < data[0].length; i++) {
-                if (data[0][i] > 0 && data[0][i] < 20) {
+                if (data[0][i] > 0 && data[0][i] < 0.2) {
                     series0_20.push(data[1][i]);
                 }
-                else if (data[0][i] >= 20 && data[0][i] < 50) {
+                else if (data[0][i] >= 0.2 && data[0][i] < 0.5) {
                     series20_50.push(data[1][i]);
                 }
-                else if (data[0][i] >= 50 && data[0][i] < 100) {
+                else if (data[0][i] >= 0.5 && data[0][i] < 1.0) {
                     series50_100.push(data[1][i]);
                 }
-                else if (data[0][i] >= 100 && data[0][i] < 150) {
+                else if (data[0][i] >= 1.0 && data[0][i] < 1.5) {
                     series100_150.push(data[1][i]);
                 }
-                else if (data[0][i] >= 150 && data[0][i] < 200) {
+                else if (data[0][i] >= 1.5 && data[0][i] < 2.0) {
                     series150_200.push(data[1][i]);
                 }
-                else if (data[0][i] >= 200 && data[0][i] < 250) {
+                else if (data[0][i] >= 2.0 && data[0][i] < 2.5) {
                     series200_250.push(data[1][i]);
                 }
-                else if (data[0][i] >= 250 && data[0][i] < 300) {
+                else if (data[0][i] >= 2.5 && data[0][i] < 3.0) {
                     series250_300.push(data[1][i]);
                 }
-                else if (data[0][i] >= 300 && data[0][i] < 350) {
+                else if (data[0][i] >= 3.0 && data[0][i] < 3.5) {
                     series300_350.push(data[1][i]);
                 }
-                else if (data[0][i] >= 350 && data[0][i] < 400) {
+                else if (data[0][i] >= 3.5 && data[0][i] < 4.0) {
                     series350_400.push(data[1][i]);
                 }
-                else if (data[0][i] >= 400 && data[0][i] < 450) {
+                else if (data[0][i] >= 4.0 && data[0][i] < 4.5) {
                     series400_450.push(data[1][i]);
                 }
-                else if (data[0][i] >= 450) {
+                else if (data[0][i] >= 4.5) {
                     series450_plus.push(data[1][i]);
                 }
             }
@@ -464,12 +464,13 @@ class WindRoseViewer extends Viewer {
 
     onData(msg) {
         this.card.title.text(msg._topic_name);
-        var angle = msg.data[1] * (180 / Math.PI);
+        // var angle = msg.data[1] * (180 / Math.PI);
+        var angle = msg.data[0];
         if (angle < 0) {
             angle = angle + 360;
         }
 
-        this.data[0][this.ptr] = Math.round(msg.data[0] * 100) / 100;
+        this.data[0][this.ptr] = Math.round(msg.data[1] * 100) / 100;
         this.data[1][this.ptr] = Math.round(angle * 100) / 100;
         this.ptr = (this.ptr + 1) % this.size;
     }

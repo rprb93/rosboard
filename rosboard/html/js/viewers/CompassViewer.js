@@ -200,7 +200,7 @@ class CompassViewer extends Viewer {
 
     onData(msg) {
         this.card.title.text(msg._topic_name);
-        let angleRaw = msg.data[1] * (180 / Math.PI);
+        let angleRaw = msg.data[2];
         var angle = 360 - 90 - angleRaw;
         if (angle < 0){
             angle = angle + 360;
