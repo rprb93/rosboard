@@ -7,10 +7,22 @@ class WebSocketV1Transport {
       this.onTopics = onTopics ? onTopics.bind(this) : null;
       this.onSystem = onSystem ? onSystem.bind(this) : null;
       this.ws = null;
-      this.joystickX = 0.0;
-      this.joystickY = 0.0;
-      this.button_1 = 0.0;
-      this.button_2 = 0.0;
+
+      this.btAction = {};
+      //   button00: 0,
+      //   button01: 0,
+      //   button02: 0,
+      //   button10: 0,
+      //   button11: 0,
+      //   button12: 0,
+      //   button20: 0,
+      //   button21: 0,
+      //   button22: 0
+      // };
+
+      this.btActionRosbag;
+
+      // this.test = 0;
     }
   
     connect() {
@@ -50,18 +62,31 @@ class WebSocketV1Transport {
             [WebSocketV1Transport.PONG_TIME]: Date.now(),
           }]));
         }
-        else if(wsMsgType === WebSocketV1Transport.MSG_MSG && that.onMsg) that.onMsg(data[1]);
+        else if(wsMsgType === WebSocketV1Transport.MSG_MSG && that.onMsg) 
+          that.onMsg(data[1]);
         else if(wsMsgType === WebSocketV1Transport.MSG_TOPICS && that.onTopics) that.onTopics(data[1]);
         else if(wsMsgType === WebSocketV1Transport.MSG_SYSTEM && that.onSystem) that.onSystem(data[1]);
         else console.log("received unknown message: " + wsmsg.data);
 
-        this.send(JSON.stringify([WebSocketV1Transport.JOY_MSG, {
-          ["x"]: that.joystickX.toFixed(3),
-          ["y"]: that.joystickY.toFixed(3),}]));
+        // this.send(JSON.stringify([WebSocketV1Transport.JOY_MSG, {
+        //   ["x"]: that.joystickX.toFixed(3),
+        //   ["y"]: that.joystickY.toFixed(3),}]));
 
         this.send(JSON.stringify([WebSocketV1Transport.BUTTON_MSG, {
-          ["1"]: that.button_1.toFixed(3),
-          ["2"]: that.button_2.toFixed(3),}]));
+          ["00"]: that.btAction["button00"],
+          ["01"]: that.btAction["button01"],
+          ["02"]: that.btAction["button02"],
+          ["10"]: that.btAction["button10"],
+          ["11"]: that.btAction["button11"],
+          ["12"]: that.btAction["button12"],
+          ["20"]: that.btAction["button20"],
+          ["21"]: that.btAction["button21"],
+          ["22"]: that.btAction["button22"],
+        }]));
+
+        this.send(JSON.stringify([WebSocketV1Transport.ROSBAG_MSG, {
+          ["action"]: that.btActionRosbag,
+        }]));
 
       }
     }
@@ -83,9 +108,45 @@ class WebSocketV1Transport {
       this.joystickY = joystickY;
     }
 
-    update_button({button_1, button_2}) {
-      this.button_1 = button_1;
-      this.button_2 = button_2;
+    update_button(button) {
+      if(!this.btAction){
+        this.btAction = {
+          button00: 0,
+          button01: 0,
+          button02: 0,
+          button10: 0,
+          button11: 0,
+          button12: 0,
+          button20: 0,
+          button21: 0,
+          button22: 0
+        };
+      }
+      let keys = Object.keys(button);
+      let value = this.btAction[keys];
+
+      if(value == 0){
+        this.btAction[keys] = 1;
+      }
+      else{
+        this.btAction[keys] = 0;
+      }
+
+      if(keys[0] === "button01"){
+        if(this.btAction[keys] == 1){
+          this.btAction["button00"] = 0;
+        }
+      }
+
+      if(keys[0] === "button00"){
+        if(this.btAction[keys] == 1){
+          this.btAction["button01"] = 0;
+        }
+      }
+    }
+
+    update_rosbag(action){
+      this.btActionRosbag = action;
     }
 
   }
@@ -104,3 +165,4 @@ class WebSocketV1Transport {
 
   WebSocketV1Transport.JOY_MSG = "j";
   WebSocketV1Transport.BUTTON_MSG = "b";
+  WebSocketV1Transport.ROSBAG_MSG = "a";

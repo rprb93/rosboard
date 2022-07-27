@@ -18,6 +18,7 @@ else:
 
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Empty
+from std_msgs.msg import UInt8, UInt8MultiArray
 from rosgraph_msgs.msg import Log
 
 from rosboard.serialization import ros2dict
@@ -60,7 +61,8 @@ class ROSBoardNode(object):
             self.sub_rosout = rospy.Subscriber("/rosout", Log, lambda x:x)
 
         self.twist_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=100)
-        self.empty_pub = rospy.Publisher('/button', Empty, queue_size=100)
+        self.empty_pub = rospy.Publisher('/btAction', UInt8MultiArray, queue_size=100)
+        self.rosbag_pub = rospy.Publisher('/rosbagAction', UInt8, queue_size=100)
 
         tornado_settings = {
             'debug': True,
@@ -98,9 +100,11 @@ class ROSBoardNode(object):
 
         # loop to send client joy message to ros topic
 
-        threading.Thread(target = self.joy_loop, daemon = True).start()
+        # threading.Thread(target = self.joy_loop, daemon = True).start()
 
         threading.Thread(target = self.button_loop, daemon = True).start()
+
+        threading.Thread(target = self.rosbag_loop, daemon = True).start()
 
         self.lock = threading.Lock()
 
@@ -133,38 +137,88 @@ class ROSBoardNode(object):
             rospy.logerr(str(e))
             return None
 
+    def rosbag_loop(self):
+        """
+        Receving Rosbag Action message from client
+        """
+
+        msg = UInt8()
+        rosbagAction = 0
+        last_rosbagAction = 0
+
+        msg.data = 0
+
+        while(True):
+            time.sleep(1)
+            self.rosbag_pub.publish(msg)
+            
+            if not isinstance(ROSBoardSocketHandler.rosbagAction_msg, dict):
+                continue
+            
+            if 'action' in ROSBoardSocketHandler.rosbagAction_msg:
+                rosbagAction = float(ROSBoardSocketHandler.rosbagAction_msg['action'])
+
+
+            if (rosbagAction == 1) and (last_rosbagAction == 0):
+                msg.data = 1
+            elif (rosbagAction == 0) and (last_rosbagAction == 1):
+                msg.data = 0
+
+            last_rosbagAction = rosbagAction
+
     def button_loop(self):
         """
         Sending joy message from client
         """
-        msg = Empty()
+        msg = UInt8MultiArray()
 
-        button_1 = 0
-        last_button_1 = 0
+        button00 = 0
+        button01 = 0
+        button02 = 0
+        button10 = 0
+        button11 = 0
+        button12 = 0
+        button20 = 0
+        button21 = 0
+        button22 = 0
 
-        button_2 = 0
-        last_button_2 = 0
+        msg.data = [button00, button01, button02, button10, button11, button12, button20, button21, button22]
 
         while True:
-            time.sleep(0.1)
+            time.sleep(1)
             self.empty_pub.publish(msg)
+            
             if not isinstance(ROSBoardSocketHandler.button_msg, dict):
                 continue
 
-            if '1' in ROSBoardSocketHandler.button_msg:
-                button_1 = float(ROSBoardSocketHandler.button_msg['1'])
+            if '00' in ROSBoardSocketHandler.button_msg:
+                button00 = int(ROSBoardSocketHandler.button_msg['00'])
 
-            if '2' in ROSBoardSocketHandler.button_msg:
-                button_2 = float(ROSBoardSocketHandler.button_msg['2'])
+            if '01' in ROSBoardSocketHandler.button_msg:
+                button01 = int(ROSBoardSocketHandler.button_msg['01'])
 
-            if (button_1 == 1.0) and (last_button_1 == 0.0):
-              print("click button 1")
+            if '02' in ROSBoardSocketHandler.button_msg:
+                button02 = int(ROSBoardSocketHandler.button_msg['02'])
 
-            if button_2 == 1 and last_button_2 == 0:
-              print("click button 2")
+            if '10' in ROSBoardSocketHandler.button_msg:
+                button10 = int(ROSBoardSocketHandler.button_msg['10'])
 
-            last_button_1 = button_1
-            last_button_2 = button_2
+            if '11' in ROSBoardSocketHandler.button_msg:
+                button11 = int(ROSBoardSocketHandler.button_msg['11'])
+
+            if '12' in ROSBoardSocketHandler.button_msg:
+                button12 = int(ROSBoardSocketHandler.button_msg['12'])
+
+            if '20' in ROSBoardSocketHandler.button_msg:
+                button20 = int(ROSBoardSocketHandler.button_msg['20'])
+            
+            if '21' in ROSBoardSocketHandler.button_msg:
+                button21 = int(ROSBoardSocketHandler.button_msg['21'])
+            
+            if '22' in ROSBoardSocketHandler.button_msg:
+                button22 = int(ROSBoardSocketHandler.button_msg['22'])
+
+            msg.data = [button00, button01, button02, button10, button11, button12, button20, button21, button22]
 
     def joy_loop(self):
         """
