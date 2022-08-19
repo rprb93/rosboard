@@ -20,6 +20,7 @@ class ROSBoardSocketHandler(tornado.websocket.WebSocketHandler):
     joy_msg = None
     button_msg = None
     rosbagAction_msg = None
+    sendText_msg = None
 
     def initialize(self, node):
         # store the instance of the ROS node that created this WebSocketHandler so we can access it later
@@ -200,9 +201,14 @@ class ROSBoardSocketHandler(tornado.websocket.WebSocketHandler):
             ROSBoardSocketHandler.button_msg = argv[1]
             # print(argv[1])
 
-        # Button
+        # ROSBAG
         elif argv[0] == ROSBoardSocketHandler.ROSBAG_MSG:
             ROSBoardSocketHandler.rosbagAction_msg = argv[1]
+            # print(argv[1])
+        
+        # SENDTEXT
+        elif argv[0] == ROSBoardSocketHandler.SENDTEXT_MSG:
+            ROSBoardSocketHandler.sendText_msg = argv[1]
             # print(argv[1])
 
 ROSBoardSocketHandler.MSG_PING = "p";
@@ -220,3 +226,4 @@ ROSBoardSocketHandler.PONG_TIME = "t";
 ROSBoardSocketHandler.JOY_MSG = "j";
 ROSBoardSocketHandler.BUTTON_MSG = "b";
 ROSBoardSocketHandler.ROSBAG_MSG = "a";
+ROSBoardSocketHandler.SENDTEXT_MSG = "c";

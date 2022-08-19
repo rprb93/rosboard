@@ -19,6 +19,7 @@ else:
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Empty
 from std_msgs.msg import UInt8, UInt8MultiArray
+from std_msgs.msg import String
 from rosgraph_msgs.msg import Log
 
 from rosboard.serialization import ros2dict
@@ -63,6 +64,7 @@ class ROSBoardNode(object):
         self.twist_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=100)
         self.empty_pub = rospy.Publisher('/btAction', UInt8MultiArray, queue_size=100)
         self.rosbag_pub = rospy.Publisher('/rosbagAction', UInt8, queue_size=100)
+        self.sendText_pub = rospy.Publisher('/sendText', String, queue_size=100)
 
         tornado_settings = {
             'debug': True,
@@ -106,6 +108,8 @@ class ROSBoardNode(object):
 
         threading.Thread(target = self.rosbag_loop, daemon = True).start()
 
+        threading.Thread(target = self.sendText_loop, daemon = True).start()
+
         self.lock = threading.Lock()
 
         rospy.loginfo("ROSboard listening on :%d" % self.port)
@@ -136,6 +140,28 @@ class ROSBoardNode(object):
         except Exception as e:
             rospy.logerr(str(e))
             return None
+    
+    def sendText_loop(self):
+        """
+        Receving Text message from client
+        """
+
+        msg = String()
+        sendText = "0"
+
+        msg.data = "0"
+
+        while(True):
+            time.sleep(1)
+            self.sendText_pub.publish(msg)
+            
+            if not isinstance(ROSBoardSocketHandler.sendText_msg, dict):
+                continue
+            
+            if 'text' in ROSBoardSocketHandler.sendText_msg:
+                sendText = ROSBoardSocketHandler.sendText_msg['text']
+
+            msg.data = sendText
 
     def rosbag_loop(self):
         """

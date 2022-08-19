@@ -95,7 +95,7 @@ class ButtonViewer extends Viewer {
       })
       .appendTo(trActionButtons1);
 
-    $('<button id=btAction10>Button</button>')
+    $('<button id=btAction10>0%</button>')
     .addClass('mdl-button mdl-js-button mdl-button--raised mdl-button--colored')
     .appendTo(tdActionBt10)
 
@@ -110,7 +110,7 @@ class ButtonViewer extends Viewer {
       })
       .appendTo(trActionButtons1);
     
-    $('<button id=btAction11>Button</button>')
+    $('<button id=btAction11>25%</button>')
     .addClass('mdl-button mdl-js-button mdl-button--raised mdl-button--colored')
     .appendTo(tdActionBt11)
 
@@ -125,7 +125,7 @@ class ButtonViewer extends Viewer {
       })
       .appendTo(trActionButtons1);
     
-    $('<button id=btAction12>Button</button>')
+    $('<button id=btAction12>50%</button>')
     .addClass('mdl-button mdl-js-button mdl-button--raised mdl-button--colored')
     .appendTo(tdActionBt12)
 
@@ -144,7 +144,7 @@ class ButtonViewer extends Viewer {
       })
       .appendTo(trActionButtons2);
 
-    $('<button id=btAction20>Button</button>')
+    $('<button id=btAction20>75%</button>')
     .addClass('mdl-button mdl-js-button mdl-button--raised mdl-button--colored')
     .appendTo(tdActionBt20)
 
@@ -159,7 +159,7 @@ class ButtonViewer extends Viewer {
       })
       .appendTo(trActionButtons2);
     
-    $('<button id=btAction21>Button</button>')
+    $('<button id=btAction21>100%</button>')
     .addClass('mdl-button mdl-js-button mdl-button--raised mdl-button--colored')
     .appendTo(tdActionBt21)
 
