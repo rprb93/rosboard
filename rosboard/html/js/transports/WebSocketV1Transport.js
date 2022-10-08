@@ -22,6 +22,8 @@ class WebSocketV1Transport {
 
       this.btActionRosbag;
 
+      this.sendText;
+
       // this.test = 0;
     }
   
@@ -88,6 +90,10 @@ class WebSocketV1Transport {
           ["action"]: that.btActionRosbag,
         }]));
 
+        this.send(JSON.stringify([WebSocketV1Transport.SENDTEXT_MSG, {
+          ["text"]: that.sendText,
+        }]));
+
       }
     }
   
@@ -143,10 +149,109 @@ class WebSocketV1Transport {
           this.btAction["button01"] = 0;
         }
       }
+
+      if(keys[0] === "button21"){
+        if(this.btAction[keys] == 1){
+          this.btAction["button10"] = 1;
+          this.btAction["button11"] = 1;
+          this.btAction["button12"] = 1;
+          this.btAction["button20"] = 1;
+          this.btAction["button21"] = 1;
+        }
+      }
+      if(keys[0] === "button21"){
+        if(this.btAction[keys] == 0){
+          this.btAction["button10"] = 1;
+          this.btAction["button11"] = 1;
+          this.btAction["button12"] = 1;
+          this.btAction["button20"] = 1;
+          this.btAction["button21"] = 1;
+        }
+      }
+
+      if(keys[0] === "button20"){
+        if(this.btAction[keys] == 1){
+          this.btAction["button10"] = 1;
+          this.btAction["button11"] = 1;
+          this.btAction["button12"] = 1;
+          this.btAction["button20"] = 1;
+          this.btAction["button21"] = 0;
+        }
+      }
+      if(keys[0] === "button20"){
+        if(this.btAction[keys] == 0){
+          this.btAction["button10"] = 1;
+          this.btAction["button11"] = 1;
+          this.btAction["button12"] = 1;
+          this.btAction["button20"] = 1;
+          this.btAction["button21"] = 0;
+        }
+      }
+
+      if(keys[0] === "button12"){
+        if(this.btAction[keys] == 1){
+          this.btAction["button10"] = 1;
+          this.btAction["button11"] = 1;
+          this.btAction["button12"] = 1;
+          this.btAction["button20"] = 0;
+          this.btAction["button21"] = 0;
+        }
+      }
+      if(keys[0] === "button12"){
+        if(this.btAction[keys] == 0){
+          this.btAction["button10"] = 1;
+          this.btAction["button11"] = 1;
+          this.btAction["button12"] = 1;
+          this.btAction["button20"] = 0;
+          this.btAction["button21"] = 0;
+        }
+      }
+
+      if(keys[0] === "button11"){
+        if(this.btAction[keys] == 1){
+          this.btAction["button10"] = 1;
+          this.btAction["button11"] = 1;
+          this.btAction["button12"] = 0;
+          this.btAction["button20"] = 0;
+          this.btAction["button21"] = 0;
+        }
+      }
+      if(keys[0] === "button11"){
+        if(this.btAction[keys] == 0){
+          this.btAction["button10"] = 1;
+          this.btAction["button11"] = 1;
+          this.btAction["button12"] = 0;
+          this.btAction["button20"] = 0;
+          this.btAction["button21"] = 0;
+        }
+      }
+
+      if(keys[0] === "button10"){
+        if(this.btAction[keys] == 1){
+          this.btAction["button10"] = 1;
+          this.btAction["button11"] = 0;
+          this.btAction["button12"] = 0;
+          this.btAction["button20"] = 0;
+          this.btAction["button21"] = 0;
+        }
+      }
+      if(keys[0] === "button10"){
+        if(this.btAction[keys] == 0){
+          this.btAction["button10"] = 1;
+          this.btAction["button11"] = 0;
+          this.btAction["button12"] = 0;
+          this.btAction["button20"] = 0;
+          this.btAction["button21"] = 0;
+        }
+      }
     }
 
     update_rosbag(action){
       this.btActionRosbag = action;
+    }
+
+    update_sendText(text){
+      this.sendText = text;
     }
 
   }
@@ -166,3 +271,4 @@ class WebSocketV1Transport {
   WebSocketV1Transport.JOY_MSG = "j";
   WebSocketV1Transport.BUTTON_MSG = "b";
   WebSocketV1Transport.ROSBAG_MSG = "a";
+  WebSocketV1Transport.SENDTEXT_MSG = "c";
