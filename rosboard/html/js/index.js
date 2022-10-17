@@ -294,7 +294,24 @@ function initSubscribe({ topicName, topicType, friendlyName = "default", dataIdx
   currentTransport.subscribe({ topicName: topicName });
   if (!subscriptions[idSub].viewer) {
     let card = newCard("default");
-    let viewer = Viewer.getViewerForClass(topicType, friendlyName);
+    let viewer;
+
+    if(topicName === "/compass" || topicName === "/environmentPlot/heading"){
+      viewer = Viewer.getViewerForClass(topicType, "Compass");
+    }
+    else if(topicName === "/environmentPlot/distGoal"){
+      viewer = Viewer.getViewerForClass(topicType, "Two Information View");
+    }
+    else if(topicName === "/rosbagAction"){
+      viewer = Viewer.getViewerForClass(topicType, "Rosbag");
+    }
+    else if(topicName === "/Wind" || topicName === "/windsonic/wind1"){
+      viewer = Viewer.getViewerForClass(topicType, "WindRose");
+    }
+    else{
+      viewer = Viewer.getViewerForClass(topicType, friendlyName);
+    }
+    
 
     try {
       if(topicType === "std_msgs/Float32MultiArray"){
