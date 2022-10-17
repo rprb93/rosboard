@@ -111,6 +111,10 @@ input, textarea, *[contenteditable=true] {
   background:#202020;
 }
 
+.grid-size{
+  width: 50%;
+}
+
 .card {
   border-radius:5pt;
   overflow:hidden;
@@ -119,7 +123,11 @@ input, textarea, *[contenteditable=true] {
   background:#303030;
   color:#c0c0c0;
   box-shadow:3pt 3pt 3pt rgba(0,0,0,0.2);
-  width:calc(100% - 40pt);
+  width: calc(50% - 40pt);;
+}
+.card--width2 {
+  width: calc(100% - 40pt);
+  /* height: 500px; */
 }
 
 .card-title {
@@ -135,6 +143,7 @@ input, textarea, *[contenteditable=true] {
   overflow:hidden;
   text-overflow:ellipsis;
   width:calc( 100% - 45pt );
+  /* float: left; */
 }
 
 .card-title-tag {
@@ -156,12 +165,14 @@ input, textarea, *[contenteditable=true] {
   display:flex;
   top:0;
   right:5pt;
+  margin-right: 0.5%;
   font-size:12pt;
   line-height:15pt;
   align-items:center;
   z-index:10;
   font-weight:700;
   height:35pt;
+  /* float: right; */
 }
 
 .card-button {
@@ -184,7 +195,7 @@ input, textarea, *[contenteditable=true] {
   transition: opacity 0.3s ease;
 }
 
-@media screen and (min-width: 900px) {
+/* @media screen and (min-width: 900px) {
   .card {
     display:inline-block;
     width:calc(50% - 40pt);
@@ -196,14 +207,14 @@ input, textarea, *[contenteditable=true] {
     display:inline-block;
     width:calc(33% - 40pt);
   }
-}
+} */
 
-@media screen and (min-width: 1800px) {
+/* @media screen and (min-width: 1800px) {
   .card {
     display:inline-block;
-    width:calc(25% - 40pt);
+    /* width:calc(25% - 40pt); */
   }
-}
+} */
 
 .packery-drop-placeholder {
   outline: 3px dashed #444;
