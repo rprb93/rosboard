@@ -209,7 +209,7 @@ class ROSBoardNode(object):
         button22 = 0
 
         msg.data = [button00, button01, button02, button10, button11, button12, button20, button21, button22]
-
+        
         while True:
             time.sleep(1)
             self.empty_pub.publish(msg)

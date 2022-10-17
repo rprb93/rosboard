@@ -9,22 +9,10 @@ class WebSocketV1Transport {
       this.ws = null;
 
       this.btAction = {};
-      //   button00: 0,
-      //   button01: 0,
-      //   button02: 0,
-      //   button10: 0,
-      //   button11: 0,
-      //   button12: 0,
-      //   button20: 0,
-      //   button21: 0,
-      //   button22: 0
-      // };
 
       this.btActionRosbag;
 
       this.sendText;
-
-      // this.test = 0;
     }
   
     connect() {
@@ -47,6 +35,8 @@ class WebSocketV1Transport {
   
       this.ws.onmessage = function(wsmsg) {
         let data = [];
+        let test;
+
         try {
           // try fast native parser
           data = JSON.parse(wsmsg.data);
@@ -64,8 +54,9 @@ class WebSocketV1Transport {
             [WebSocketV1Transport.PONG_TIME]: Date.now(),
           }]));
         }
-        else if(wsMsgType === WebSocketV1Transport.MSG_MSG && that.onMsg) 
+        else if(wsMsgType === WebSocketV1Transport.MSG_MSG && that.onMsg){
           that.onMsg(data[1]);
+        }
         else if(wsMsgType === WebSocketV1Transport.MSG_TOPICS && that.onTopics) that.onTopics(data[1]);
         else if(wsMsgType === WebSocketV1Transport.MSG_SYSTEM && that.onSystem) that.onSystem(data[1]);
         else console.log("received unknown message: " + wsmsg.data);
@@ -74,17 +65,7 @@ class WebSocketV1Transport {
         //   ["x"]: that.joystickX.toFixed(3),
         //   ["y"]: that.joystickY.toFixed(3),}]));
 
-        this.send(JSON.stringify([WebSocketV1Transport.BUTTON_MSG, {
-          ["00"]: that.btAction["button00"],
-          ["01"]: that.btAction["button01"],
-          ["02"]: that.btAction["button02"],
-          ["10"]: that.btAction["button10"],
-          ["11"]: that.btAction["button11"],
-          ["12"]: that.btAction["button12"],
-          ["20"]: that.btAction["button20"],
-          ["21"]: that.btAction["button21"],
-          ["22"]: that.btAction["button22"],
-        }]));
+        
 
         this.send(JSON.stringify([WebSocketV1Transport.ROSBAG_MSG, {
           ["action"]: that.btActionRosbag,
@@ -130,13 +111,18 @@ class WebSocketV1Transport {
       }
       let keys = Object.keys(button);
       let value = this.btAction[keys];
+      // let value = button[keys];
 
-      if(value == 0){
-        this.btAction[keys] = 1;
-      }
-      else{
-        this.btAction[keys] = 0;
-      }
+      // if(!keys == "button02"){
+      //   if(value == 0){
+      //     this.btAction[keys] = 1;
+      //     value = this.btAction[keys];
+      //   }
+      //   else{
+      //     this.btAction[keys] = 0;
+      //     value = this.btAction[keys];
+      //   }
+      // }
 
       if(keys[0] === "button01"){
         if(this.btAction[keys] == 1){
@@ -150,6 +136,44 @@ class WebSocketV1Transport {
         }
       }
 
+      if(keys[0] === "button02"){
+        let value = 0;
+        if(isNaN(this.btAction["button02"])){
+          value = 0;
+        }
+        else{
+          value = this.btAction["button02"];
+        }
+        
+        if(value < 28){
+          this.btAction["button02"] = value + 1;
+          this.btAction["button22"] = value + 1;
+        }
+        else{
+          this.btAction["button02"] = value;
+          this.btAction["button22"] = value
+        }
+      }
+
+      if(keys[0] === "button22"){
+        let value = 0;
+        if(isNaN(this.btAction["button22"])){
+          value = 0;
+        }
+        else{
+          value = this.btAction["button22"];
+        }
+        
+        if(value > 0){
+          this.btAction["button02"] = value - 1;
+          this.btAction["button22"] = value - 1;
+        }
+        else{
+          this.btAction["button02"] = value;
+          this.btAction["button22"] = value
+        }
+      }
+
       if(keys[0] === "button21"){
         if(this.btAction[keys] == 1){
           this.btAction["button10"] = 1;
@@ -244,6 +268,19 @@ class WebSocketV1Transport {
           this.btAction["button21"] = 0;
         }
       }
+
+
+      this.ws.send(JSON.stringify([WebSocketV1Transport.BUTTON_MSG, {
+        ["00"]: this.btAction["button00"],
+        ["01"]: this.btAction["button01"],
+        ["02"]: this.btAction["button02"],
+        ["10"]: this.btAction["button10"],
+        ["11"]: this.btAction["button11"],
+        ["12"]: this.btAction["button12"],
+        ["20"]: this.btAction["button20"],
+        ["21"]: this.btAction["button21"],
+        ["22"]: this.btAction["button22"],
+      }]));
     }
 
     update_rosbag(action){

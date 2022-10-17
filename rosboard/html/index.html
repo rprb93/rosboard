@@ -44,7 +44,8 @@
   <script type="text/javascript" src="js/viewers/SendTextViewer.js"></script>
   <script type="text/javascript" src="js/viewers/CompassViewer.js"></script>
   <script type="text/javascript" src="js/viewers/WindRoseViewer.js"></script>
-  <script type="text/javascript" src="js/viewers/GenericViewer.js"></script>
+  <script type="text/javascript" src="js/viewers/EnvironmentViewer.js"></script>
+  <script type="text/javascript" src="js/viewers/GenericViewer.js"></script> <!-- Tem de ser o ultimo viewer -->
   <script type="text/javascript" src="js/transports/WebSocketV1Transport.js"></script>
   <script type="text/javascript" src="js/index.js" defer></script>
 
@@ -56,6 +57,9 @@
   <script src="js/amcharts.radar.js"></script>
   <!-- <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script> -->
   <!-- <script src="https://cdn.amcharts.com/lib/5/themes/Dark.js"></script> -->
+
+  <script type="text/javascript" src="js/echarts.min.js"></script>
+
 
 
   <title>ROSboard</title>
@@ -87,6 +91,7 @@
     <main class="mdl-layout__content">
       <div class="page-content">
         <div class="grid">
+          <div class="grid-size"></div>
         </div>
       </div>
     </main>
