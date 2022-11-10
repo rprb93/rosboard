@@ -43,7 +43,8 @@ class EnvironmentViewer extends Viewer {
         animation: false,
         xAxis: {
           min: Math.round(this.xlimits[0]-5),
-          max: Math.round(this.xlimits[1]+5)
+          max: Math.round(this.xlimits[1]+5),
+          inverse: true
         },
         yAxis: {
           min: Math.round(this.ylimits[0]-5),
