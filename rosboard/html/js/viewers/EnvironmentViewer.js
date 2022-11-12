@@ -58,7 +58,7 @@ class EnvironmentViewer extends Viewer {
             data: this.circleOdorSource,
             markPoint: {
               data: [
-                {coord: [this.dataOdorSource[0], this.dataOdorSource[1]]}
+                {coord: [this.dataOdorSource[1], this.dataOdorSource[0]]}
               ]
             }
           },
