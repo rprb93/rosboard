@@ -123,11 +123,13 @@ input, textarea, *[contenteditable=true] {
   background:#303030;
   color:#c0c0c0;
   box-shadow:3pt 3pt 3pt rgba(0,0,0,0.2);
-  width: calc(50% - 40pt);;
+  width: calc(50% - 40pt);
 }
-.card--width2 {
+
+.card_environmentPlot {
+  background:#ffffff;
+  color:#000000;
   width: calc(100% - 40pt);
-  /* height: 500px; */
 }
 
 .card-title {
@@ -144,6 +146,11 @@ input, textarea, *[contenteditable=true] {
   text-overflow:ellipsis;
   width:calc( 100% - 45pt );
   /* float: left; */
+}
+
+.card-title_environmentPlot {
+  color:#000000;
+  font-weight: bold;
 }
 
 .card-title-tag {
@@ -195,6 +202,12 @@ input, textarea, *[contenteditable=true] {
   transition: opacity 0.3s ease;
 }
 
+.card-envPlot {
+  height: 450px;
+  width: 100%;
+  /* background-color: yellow; */
+}
+
 /* @media screen and (min-width: 900px) {
   .card {
     display:inline-block;
@@ -212,7 +225,7 @@ input, textarea, *[contenteditable=true] {
 /* @media screen and (min-width: 1800px) {
   .card {
     display:inline-block;
-    /* width:calc(25% - 40pt); */
+    width:calc(25% - 40pt);
   }
 } */
 

@@ -30,7 +30,7 @@ class Viewer {
       let that = this;
 
       // card title div
-      card.title = $('<div></div>').addClass('card-title').text("Waiting for data ...").appendTo(card);
+      card.title = $('<div></div>').addClass('card-title card-title_environmentPlot').text("Waiting for data ...").appendTo(card);
 
       // div container at the top right for all the buttons
       card.buttons = $('<div></div>').addClass('card-buttons').text('').appendTo(card);

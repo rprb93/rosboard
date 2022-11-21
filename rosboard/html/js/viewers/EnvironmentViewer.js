@@ -18,48 +18,60 @@ class EnvironmentViewer extends Viewer {
     this.dataInside_grid = [];
     this.xlimits = [];
     this.ylimits = [];
+    this.distGoal = 0.0;
 
     this.viewer = $('<div></div>')
       .css({
-        'font-size': '11pt'
-        , "filter": "invert(100%) saturate(50%)"
+        'font-size': '11pt', 
       })
       .appendTo(this.card.content);
 
     this.envPlotId = "envPlot-" + Math.floor(Math.random() * 10000);
 
     this.envPlot = $('<div class="envPlot" id="' + this.envPlotId + '"></div>')
-      .css({
-        "height": "450px",
-        "width": "100%"
-      })
+      .addClass('card-envPlot')
+      // .css({
+      //   "height": "450px",
+      //   "width": "100%",
+      //   "background-color": "yellow";
+      //   // "padding-left: 0px;
+
+      // })
       .appendTo(this.viewer);
 
-    this.scatterEcharts = echarts.init(document.getElementById(this.envPlotId));
+    this.scatterEcharts = echarts.init(document.getElementById(this.envPlotId), 'infographic', {width: 'auto'});
     var option;
 
     setInterval(()=> {
       option = {
+        grid: {
+          left: '5%',
+          top: '2%',
+          right: '2%',
+          bottom: '10%'
+        },
         animation: false,
         xAxis: {
-          min: Math.round(this.xlimits[0]-5),
-          max: Math.round(this.xlimits[1]+5),
+          min: Math.round(this.xlimits[0]),
+          max: Math.round(this.xlimits[1]),
           inverse: true
         },
         yAxis: {
-          min: Math.round(this.ylimits[0]-5),
-          max: Math.round(this.ylimits[1]+5)
+          min: Math.round(this.ylimits[0]),
+          max: Math.round(this.ylimits[1])
         },
         series: [
           // Odor Source Pose
           {
-            symbolSize: 3,
+            symbolSize: 20,
             type: 'scatter',
-            data: this.circleOdorSource,
-            markPoint: {
-              data: [
-                {coord: [this.dataOdorSource[1], this.dataOdorSource[0]]}
-              ]
+            symbol: 'rect',
+            data: [
+              [this.dataOdorSource[1], this.dataOdorSource[0]]
+            ],
+            itemStyle: {
+              color: "#ff0000",
+              opacity: 1
             }
           },
           // Goal Pose
@@ -67,6 +79,9 @@ class EnvironmentViewer extends Viewer {
             symbolSize: 3,
             type: 'scatter',
             data: this.circleGoal,
+            itemStyle: {
+              color: "#0009ff",
+            },
             markPoint: {
               symbol: 'circle',
               symbolSize: 10,
@@ -81,7 +96,9 @@ class EnvironmentViewer extends Viewer {
             type: 'scatter',
             markLine: {
               lineStyle: {
-                type: 'dotted',
+                type: 'solid',
+                width: 5,
+                color: "#346500"
               },
               animation: false,
               symbolSize: 1,
@@ -149,15 +166,21 @@ class EnvironmentViewer extends Viewer {
           },
           // Agent Pose and line to Goal
           {
-            symbolSize: 50,
+            symbolSize: 30,
             type: 'scatter',
-            symbol: 'pin',
+            symbol: 'circle',
             data: [
               [this.dataAgent[0], this.dataAgent[1]]
             ],
+            itemStyle: {
+              color: "#000000",
+              opacity: 0.8
+            },
             markLine: {
               lineStyle: {
                 type: 'line',
+                width: 3,
+                color: "#000000"
               },
               animation: false,
               data: [
@@ -177,7 +200,9 @@ class EnvironmentViewer extends Viewer {
   }
 
   onData(data) {
-    this.card.title.text("Environment View");
+    // this.card.title.text(this.distGoal);
+
+    this.card.title.text("Distance: " + (Math.round(this.distGoal * 100) / 100) + " m");
 
     if (data._topic_name == "/environmentPlot/pos_odorsource") {
       this.dataOdorSource[0] = data.data[0];
@@ -216,17 +241,18 @@ class EnvironmentViewer extends Viewer {
       let odd = data.data.filter((v, i) => i % 2);
       let even = data.data.filter((v, i) => !(i % 2));
 
-      this.xlimits[0] = Math.min(...odd);
-      this.xlimits[1] = Math.max(...odd);
-      this.ylimits[0] = Math.min(...even);
-      this.ylimits[1] = Math.max(...even);
-
       this.dataPolygon = Array.from(Array(odd.length), () => new Array(2));
 
       for(let i=0; i < odd.length; i++){
         this.dataPolygon[i][0] = odd[i];
         this.dataPolygon[i][1] = even[i];
       }
+    }
+    else if (data._topic_name == "/environmentPlot/graphLimits") {
+      this.xlimits[0] = data.data[0];
+      this.xlimits[1] = data.data[1];
+      this.ylimits[0] = data.data[2];
+      this.ylimits[1] = data.data[3];
     }
     else if (data._topic_name == "/environmentPlot/inside_grid") {
       let odd = data.data.filter((v, i) => i % 2);
@@ -238,6 +264,9 @@ class EnvironmentViewer extends Viewer {
         this.dataInside_grid[i][0] = odd[i];
         this.dataInside_grid[i][1] = even[i];
       }
+    }
+    else if (data._topic_name == "/environmentPlot/distGoal") {
+      this.distGoal = data.data[0];
     }
   }
 }

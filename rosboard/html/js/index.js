@@ -38,7 +38,7 @@ else if(window.location.pathname === "/" || window.location.pathname === "/index
 }
 
 if (window.localStorage && window.localStorage[localStorageSubsName]) {
-  window.localStorage.clear();
+  // window.localStorage.clear();
   if (window.location.search && window.location.search.indexOf("reset") !== -1) {
     subscriptions = {};
     updateStoredSubscriptions();
@@ -99,7 +99,7 @@ function newCard(cardType) {
   else if(cardType == "environmentPlot"){
     // creates a new card, adds it to the grid, and returns it.
     let card = $("<div></div>")
-      .addClass('card card--width2')
+      .addClass('card card_environmentPlot')
       .appendTo($('.grid'));
     return card;
   }
@@ -108,8 +108,13 @@ function newCard(cardType) {
 
 let onOpen = function () {
   for (let subsIdx in subscriptions) {
-    console.log("Re-subscribing to " + subsIdx);
-    initSubscribe({ topicName: subsIdx, topicType: subscriptions[subsIdx].topicType, friendlyName: subscriptions[subsIdx].friendlyName, dataIdx: subscriptions[subsIdx].dataIdx });
+    if(subsIdx == "/environmentPlot__0"){
+      initSubscribeEnvironment({ topicName: subsIdx, topicType: "environmentPlot" });
+    }
+    else{
+      console.log("Re-subscribing to " + subsIdx);
+      initSubscribe({ topicName: subsIdx, topicType: subscriptions[subsIdx].topicType, friendlyName: subscriptions[subsIdx].friendlyName, dataIdx: subscriptions[subsIdx].dataIdx });
+    } 
   }
 }
 
@@ -305,7 +310,7 @@ function initSubscribe({ topicName, topicType, friendlyName = "default", dataIdx
     else if(topicName === "/rosbagAction"){
       viewer = Viewer.getViewerForClass(topicType, "Rosbag");
     }
-    else if(topicName === "/Wind" || topicName === "/windsonic/wind1"){
+    else if(topicName === "/Wind" || topicName === "/Wind2"){
       viewer = Viewer.getViewerForClass(topicType, "WindRose");
     }
     else{
@@ -392,6 +397,8 @@ function initSubscribeEnvironment({ topicName, topicType, friendlyName = "defaul
   currentTransport.subscribe({ topicName: topicName + "/pos_agent" });
   currentTransport.subscribe({ topicName: topicName + "/inside_grid" });
   currentTransport.subscribe({ topicName: topicName + "/polygon" });
+  currentTransport.subscribe({ topicName: topicName + "/graphLimits" });
+  currentTransport.subscribe({ topicName: topicName + "/distGoal" });
 
   if (!subscriptions[idSub].viewer) {
     let card = newCard("environmentPlot");
@@ -407,7 +414,7 @@ function initSubscribeEnvironment({ topicName, topicType, friendlyName = "defaul
     $grid.masonry("appended", card);
   }
 
-  // updateStoredSubscriptions();
+  updateStoredSubscriptions();
 
   subsGroup = getSubscritors(subscriptions);
 }
@@ -473,9 +480,34 @@ Viewer.onClose = function (viewerInstance) {
   let subsIdx = viewerInstance.subsIdx;
   let topicName = viewerInstance.topicName;
   let topicType = viewerInstance.topicType;
-  if(subsGroup[topicName].length == 1){
+  if(subsIdx == "/environmentPlot__0"){
+    if(subsGroup[topicName + "/pos_odorsource"].length == 1){
+      currentTransport.unsubscribe({ topicName: topicName + "/pos_odorsource" });
+    }
+    if(subsGroup[topicName + "/pos_goal"].length == 1){
+      currentTransport.unsubscribe({ topicName: topicName + "/pos_goal" });
+    }
+    if(subsGroup[topicName + "/pos_agent"].length == 1){
+      currentTransport.unsubscribe({ topicName: topicName + "/pos_agent" });
+    }
+    if(subsGroup[topicName + "/inside_grid"].length == 1){
+      currentTransport.unsubscribe({ topicName: topicName + "/inside_grid" });
+    }
+    if(subsGroup[topicName + "/polygon"].length == 1){
+      currentTransport.unsubscribe({ topicName: topicName + "/polygon" });
+    }
+    if(subsGroup[topicName + "/graphLimits"].length == 1){
+      currentTransport.unsubscribe({ topicName: topicName + "/graphLimits" });
+    }
+    if(subsGroup[topicName + "/distGoal"].length == 1){
+      currentTransport.unsubscribe({ topicName: topicName + "/distGoal" });
+    }
+  }
+  else if(subsGroup[topicName].length == 1){
     currentTransport.unsubscribe({ topicName: topicName });
   }
+
+
   $grid.masonry("remove", viewerInstance.card);
   delete (subscriptions[subsIdx].viewer);
   delete (subscriptions[subsIdx]);
@@ -533,6 +565,8 @@ function getSubscritors (subs){
       rosTopicName[topic + "/pos_agent"] = [];
       rosTopicName[topic + "/polygon"] = [];
       rosTopicName[topic + "/inside_grid"] = [];
+      rosTopicName[topic + "/graphLimits"] = [];
+      rosTopicName[topic + "/distGoal"] = [];
     }
     else{
       rosTopicName[topic] = [];
@@ -552,8 +586,10 @@ function getSubscritors (subs){
       rosTopicName[topic + "/pos_odorsource"].push(key);
       rosTopicName[topic + "/pos_goal"].push(key);
       rosTopicName[topic + "/pos_agent"].push(key);
-      rosTopicName[topic + "/polygon"].push(key);;
-      rosTopicName[topic + "/inside_grid"].push(key);;
+      rosTopicName[topic + "/polygon"].push(key);
+      rosTopicName[topic + "/inside_grid"].push(key);
+      rosTopicName[topic + "/graphLimits"].push(key);
+      rosTopicName[topic + "/distGoal"].push(key);
     }
     else{
       rosTopicName[topic].push(key);
