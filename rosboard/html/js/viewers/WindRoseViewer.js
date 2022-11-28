@@ -28,7 +28,7 @@ class WindRoseViewer extends Viewer {
             .css({ 'width': '100%', 'table-layout': 'fixed' })
             .appendTo(this.viewer);
 
-        this.size = 1;
+        this.size = 10;
         this.data = [
             new Array(this.size).fill(0),
             new Array(this.size).fill(0),
