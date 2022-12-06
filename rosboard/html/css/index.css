@@ -148,6 +148,24 @@ input, textarea, *[contenteditable=true] {
   /* float: left; */
 }
 
+.card-title_status {
+  font-family:Titillium Web;
+  font-size:12pt;
+  color:#a0a0a0;
+  padding-top:10pt;
+  padding-left:15pt;
+  padding-bottom:10pt;
+  overflow:hidden;
+  vertical-align:middle;
+  line-height:15pt;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  position: absolute;
+  top: 0;
+  left: 120pt;
+  /* float: left; */
+}
+
 .card-title_environmentPlot {
   color:#000000;
   font-weight: bold;

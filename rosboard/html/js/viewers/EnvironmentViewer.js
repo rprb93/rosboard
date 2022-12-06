@@ -19,6 +19,7 @@ class EnvironmentViewer extends Viewer {
     this.xlimits = [];
     this.ylimits = [];
     this.distGoal = 0.0;
+    this.status = [];
 
     this.viewer = $('<div></div>')
       .css({
@@ -200,9 +201,16 @@ class EnvironmentViewer extends Viewer {
   }
 
   onData(data) {
-    // this.card.title.text(this.distGoal);
-
     this.card.title.text("Distance: " + (Math.round(this.distGoal * 100) / 100) + " m");
+
+    if(this.status[0] == 1){
+      this.card.status.text("Status: Ready!");
+    }
+    else if(this.status[0] == 0){
+      this.card.status.text("Status: Off!");
+      this.dataGoal = [];
+      this.circleGoal = [];
+    }
 
     if (data._topic_name == "/environmentPlot/pos_odorsource") {
       this.dataOdorSource[0] = data.data[0];
@@ -267,6 +275,11 @@ class EnvironmentViewer extends Viewer {
     }
     else if (data._topic_name == "/environmentPlot/distGoal") {
       this.distGoal = data.data[0];
+    }
+    else if (data._topic_name == "/environmentPlot/status") {
+     this.status[0] = data.data[0];
+     this.status[1] = data.data[1];
+     this.status[2] = data.data[2];
     }
   }
 }

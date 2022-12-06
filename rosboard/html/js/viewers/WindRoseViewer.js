@@ -28,7 +28,7 @@ class WindRoseViewer extends Viewer {
             .css({ 'width': '100%', 'table-layout': 'fixed' })
             .appendTo(this.viewer);
 
-        this.size = 10;
+        this.size = 1;
         this.data = [
             new Array(this.size).fill(0),
             new Array(this.size).fill(0),
@@ -52,8 +52,7 @@ class WindRoseViewer extends Viewer {
             let dirNW = 0;
             let serieDir = [];
             let numElem = data.length;
-            let size = 100;
-
+            let size = data.length;
 
             for (let i = 0; i < numElem; i++) {
                 if (data[i] >= 0 && data[i] < 45) {
@@ -284,6 +283,7 @@ class WindRoseViewer extends Viewer {
                     }
                 );
             }
+
             return seriesSpeed;
         }
 
@@ -312,7 +312,10 @@ class WindRoseViewer extends Viewer {
             tooltip: am5.Tooltip.new(root, {})
         }));
 
-        var yRenderer = am5radar.AxisRendererRadial.new(root, {});
+        var yRenderer = am5radar.AxisRendererRadial.new(root, {
+            minGridDistance: 50,
+            radius: 100
+        });
         yRenderer.labels.template.setAll({
             fontSize: 10
             // minGridDistance: 1
@@ -453,6 +456,9 @@ class WindRoseViewer extends Viewer {
 
             let seriesWind = arrangeWindData(this.data);
             try {
+                for (let i = 0; i < seriesField.length; i++) {
+                    series[seriesField[i]].data.setAll([]);
+                }
                 for (let i = 0; i < seriesWind.length; i++) {
                     series[seriesWind[i].serieName].data.setAll(seriesWind[i].value);
                 }

@@ -310,7 +310,7 @@ function initSubscribe({ topicName, topicType, friendlyName = "default", dataIdx
     else if(topicName === "/rosbagAction"){
       viewer = Viewer.getViewerForClass(topicType, "Rosbag");
     }
-    else if(topicName === "/Wind" || topicName === "/Wind2"){
+    else if(topicName === "/Wind" || topicName === "/Wind2" || topicName === "/Wind_mean" || topicName === "/Wind2_mean"){
       viewer = Viewer.getViewerForClass(topicType, "WindRose");
     }
     else{
@@ -399,6 +399,7 @@ function initSubscribeEnvironment({ topicName, topicType, friendlyName = "defaul
   currentTransport.subscribe({ topicName: topicName + "/polygon" });
   currentTransport.subscribe({ topicName: topicName + "/graphLimits" });
   currentTransport.subscribe({ topicName: topicName + "/distGoal" });
+  currentTransport.subscribe({ topicName: topicName + "/status" });
 
   if (!subscriptions[idSub].viewer) {
     let card = newCard("environmentPlot");
@@ -502,6 +503,9 @@ Viewer.onClose = function (viewerInstance) {
     if(subsGroup[topicName + "/distGoal"].length == 1){
       currentTransport.unsubscribe({ topicName: topicName + "/distGoal" });
     }
+    if(subsGroup[topicName + "/status"].length == 1){
+     currentTransport.unsubscribe({ topicName: topicName + "/status" });
+    }
   }
   else if(subsGroup[topicName].length == 1){
     currentTransport.unsubscribe({ topicName: topicName });
@@ -567,6 +571,7 @@ function getSubscritors (subs){
       rosTopicName[topic + "/inside_grid"] = [];
       rosTopicName[topic + "/graphLimits"] = [];
       rosTopicName[topic + "/distGoal"] = [];
+      rosTopicName[topic + "/status"] = [];
     }
     else{
       rosTopicName[topic] = [];
@@ -590,6 +595,7 @@ function getSubscritors (subs){
       rosTopicName[topic + "/inside_grid"].push(key);
       rosTopicName[topic + "/graphLimits"].push(key);
       rosTopicName[topic + "/distGoal"].push(key);
+      rosTopicName[topic + "/status"].push(key);
     }
     else{
       rosTopicName[topic].push(key);
