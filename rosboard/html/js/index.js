@@ -43,7 +43,8 @@ if (window.localStorage && window.localStorage[localStorageSubsName]) {
     subscriptions = {};
     updateStoredSubscriptions();
     window.location.href = "?";
-  } else {
+  } 
+  else {
     try {
       subscriptions = JSON.parse(window.localStorage[localStorageSubsName]);
     } catch (e) {
@@ -56,9 +57,9 @@ if (window.localStorage && window.localStorage[localStorageSubsName]) {
 let $grid = null;
 $(() => {
   $grid = $('.grid').masonry({
+    columnWidth: '.grid-size',
     itemSelector: '.card',
-    gutter: 10,
-    percentPosition: true,
+    percentPosition: true
   });
 });
 
@@ -88,17 +89,32 @@ function updateStoredSubscriptions() {
   }
 }
 
-function newCard() {
-  // creates a new card, adds it to the grid, and returns it.
-  let card = $("<div></div>").addClass('card')
-    .appendTo($('.grid'));
-  return card;
+function newCard(cardType) {
+  if(cardType == "default"){
+    // creates a new card, adds it to the grid, and returns it.
+    let card = $("<div></div>").addClass('card')
+      .appendTo($('.grid'));
+    return card;
+  }
+  else if(cardType == "environmentPlot"){
+    // creates a new card, adds it to the grid, and returns it.
+    let card = $("<div></div>")
+      .addClass('card card_environmentPlot')
+      .appendTo($('.grid'));
+    return card;
+  }
+
 }
 
 let onOpen = function () {
   for (let subsIdx in subscriptions) {
-    console.log("Re-subscribing to " + subsIdx);
-    initSubscribe({ topicName: subsIdx, topicType: subscriptions[subsIdx].topicType, friendlyName: subscriptions[subsIdx].friendlyName, dataIdx: subscriptions[subsIdx].dataIdx });
+    if(subsIdx == "/environmentPlot__0"){
+      initSubscribeEnvironment({ topicName: subsIdx, topicType: "environmentPlot" });
+    }
+    else{
+      console.log("Re-subscribing to " + subsIdx);
+      initSubscribe({ topicName: subsIdx, topicType: subscriptions[subsIdx].topicType, friendlyName: subscriptions[subsIdx].friendlyName, dataIdx: subscriptions[subsIdx].dataIdx });
+    } 
   }
 }
 
@@ -117,6 +133,7 @@ let onSystem = function (system) {
 let onMsg = function (msg) {
   let topics = Object.keys(subsGroup);
   for(let key in topics){
+    // console.log(msg._topic_name);
     if(msg._topic_name == topics[key]){
       for(let i=0; i < subsGroup[topics[key]].length; i++){
         subscriptions[subsGroup[topics[key]][i]].viewer.update(msg);
@@ -192,17 +209,33 @@ function addTopicTreeToNav(topicTree, el, level = 0, path = "") {
         .click(() => { initSubscribe({ topicName: fullTopicName, topicType: topicType }); })
         .text(subTree.name)
         .appendTo(subEl);
-    } else {
-      $('<a></a>')
-        .addClass("mdl-navigation__link")
-        .attr("disabled", "disabled")
-        .css({
-          "padding-left": "12pt",
-          "margin-left": 0,
-          opacity: 0.5,
-        })
-        .text(subTree.name)
-        .appendTo(subEl);
+    } 
+    else {
+      if(fullTopicName == "/environmentPlot") {
+        $('<a></a>')
+          .addClass("mdl-navigation__link")
+          .css({
+            "padding-left": "12pt",
+            "margin-left": 0,
+            opacity: 0.5,
+          })
+          .click(() => { initSubscribeEnvironment({ topicName: fullTopicName, topicType: "environmentPlot" }); })
+          .text(subTree.name)
+          .appendTo(subEl);
+      }
+      else {
+        $('<a></a>')
+          .addClass("mdl-navigation__link")
+          .attr("disabled", "disabled")
+          .css({
+            "padding-left": "12pt",
+            "margin-left": 0,
+            opacity: 0.5,
+          })
+          .text(subTree.name)
+          .appendTo(subEl);
+    
+      }
     }
     addTopicTreeToNav(subTree, subEl, level + 1, path + "/" + subTree.name);
   });
@@ -219,7 +252,7 @@ function initSubscribe({ topicName, topicType, friendlyName = "default", dataIdx
 
   if(!jQuery.isEmptyObject(subsGroup)){
     let topics = Object.keys(subsGroup);
-    let topicFromCookies = topicName.split("_");
+    let topicFromCookies = topicName.split("__");
 
     if(topicFromCookies.length == 2){
       idSub = topicName;
@@ -231,14 +264,14 @@ function initSubscribe({ topicName, topicType, friendlyName = "default", dataIdx
         if(topicName == topics[key]){
           let idx = Math.floor(Math.random() * 1e6);
           for(let i=0; i < subsGroup[topics[key]].length; i++){
-            let aux = subsGroup[topics[key]][i].split("_");
+            let aux = subsGroup[topics[key]][i].split("__");
 
             if(idx == aux[1]){
               console.log("SubIdx: " + idx + " already exist!");
               idx = Math.floor(Math.random() * 1e6);
             }
           }
-          idSub = topicName + "_" + idx;
+          idSub = topicName + "__" + idx;
           control=1;
           break;
         }
@@ -246,17 +279,15 @@ function initSubscribe({ topicName, topicType, friendlyName = "default", dataIdx
     }
   }
   else{
-    idSub = topicName + "_0";
+    idSub = topicName + "__0";
     control=1; 
   }
 
   if(control == 0){
-    idSub = topicName + "_0";
+    idSub = topicName + "__0";
   }
 
   
-
-
   if (!subscriptions[idSub]) {
     subscriptions[idSub] = {
       topicType: topicType,
@@ -267,8 +298,25 @@ function initSubscribe({ topicName, topicType, friendlyName = "default", dataIdx
 
   currentTransport.subscribe({ topicName: topicName });
   if (!subscriptions[idSub].viewer) {
-    let card = newCard();
-    let viewer = Viewer.getViewerForClass(topicType, friendlyName);
+    let card = newCard("default");
+    let viewer;
+
+    if(topicName === "/compass" || topicName === "/environmentPlot/heading"){
+      viewer = Viewer.getViewerForClass(topicType, "Compass");
+    }
+    else if(topicName === "/environmentPlot/distGoal"){
+      viewer = Viewer.getViewerForClass(topicType, "Two Information View");
+    }
+    else if(topicName === "/rosbagAction"){
+      viewer = Viewer.getViewerForClass(topicType, "Rosbag");
+    }
+    else if(topicName === "/Wind" || topicName === "/Wind2" || topicName === "/Wind_mean" || topicName === "/Wind2_mean"){
+      viewer = Viewer.getViewerForClass(topicType, "WindRose");
+    }
+    else{
+      viewer = Viewer.getViewerForClass(topicType, friendlyName);
+    }
+    
 
     try {
       if(topicType === "std_msgs/Float32MultiArray"){
@@ -277,6 +325,88 @@ function initSubscribe({ topicName, topicType, friendlyName = "default", dataIdx
       else{
         subscriptions[idSub].viewer = new viewer(card, idSub, topicName, topicType);
       }
+      subscriptions[idSub].friendlyName = viewer.friendlyName;
+    } catch (e) {
+      console.log(e);
+      card.remove();
+    }
+    $grid.masonry("appended", card);
+  }
+
+  updateStoredSubscriptions();
+
+  subsGroup = getSubscritors(subscriptions);
+}
+
+function initSubscribeEnvironment({ topicName, topicType, friendlyName = "default", dataIdx = 0 }) {
+  // creates a subscriber for topicName
+  // and also initializes a viewer (if it doesn't already exist)
+  // in advance of arrival of the first data
+  // this way the user gets a snappy UI response because the viewer appears immediately
+  let idSub;
+  let control = 0;
+  subsGroup = getSubscritors(subscriptions);
+
+  if(!jQuery.isEmptyObject(subsGroup)){
+    let topics = Object.keys(subsGroup);
+    let topicFromCookies = topicName.split("__");
+
+    if(topicFromCookies.length == 2){
+      idSub = topicName;
+      topicName = topicFromCookies[0];
+      control = 1;
+    }
+    else{
+      for(let key in topics){
+        if(topicName == topics[key]){
+          let idx = Math.floor(Math.random() * 1e6);
+          for(let i=0; i < subsGroup[topics[key]].length; i++){
+            let aux = subsGroup[topics[key]][i].split("__");
+
+            if(idx == aux[1]){
+              console.log("SubIdx: " + idx + " already exist!");
+              idx = Math.floor(Math.random() * 1e6);
+            }
+          }
+          idSub = topicName + "__" + idx;
+          control=1;
+          break;
+        }
+      }
+    }
+  }
+  else{
+    idSub = topicName + "__0";
+    control=1; 
+  }
+
+  if(control == 0){
+    idSub = topicName + "__0";
+  }
+
+  if (!subscriptions[idSub]) {
+      subscriptions[idSub] = {
+        topicType: "environmentPlot",
+        dataIdx: 0,
+        friendlyName: "default"
+      }
+    }
+
+  currentTransport.subscribe({ topicName: topicName + "/pos_odorsource" });
+  currentTransport.subscribe({ topicName: topicName + "/pos_goal" });
+  currentTransport.subscribe({ topicName: topicName + "/pos_agent" });
+  currentTransport.subscribe({ topicName: topicName + "/inside_grid" });
+  currentTransport.subscribe({ topicName: topicName + "/polygon" });
+  currentTransport.subscribe({ topicName: topicName + "/graphLimits" });
+  currentTransport.subscribe({ topicName: topicName + "/distGoal" });
+  currentTransport.subscribe({ topicName: topicName + "/status" });
+
+  if (!subscriptions[idSub].viewer) {
+    let card = newCard("environmentPlot");
+    let viewer = Viewer.getViewerForClass(topicType, friendlyName);
+
+    try {
+      subscriptions[idSub].viewer = new viewer(card, idSub, topicName);
       subscriptions[idSub].friendlyName = viewer.friendlyName;
     } catch (e) {
       console.log(e);
@@ -351,9 +481,37 @@ Viewer.onClose = function (viewerInstance) {
   let subsIdx = viewerInstance.subsIdx;
   let topicName = viewerInstance.topicName;
   let topicType = viewerInstance.topicType;
-  if(subsGroup[topicName].length == 1){
+  if(subsIdx == "/environmentPlot__0"){
+    if(subsGroup[topicName + "/pos_odorsource"].length == 1){
+      currentTransport.unsubscribe({ topicName: topicName + "/pos_odorsource" });
+    }
+    if(subsGroup[topicName + "/pos_goal"].length == 1){
+      currentTransport.unsubscribe({ topicName: topicName + "/pos_goal" });
+    }
+    if(subsGroup[topicName + "/pos_agent"].length == 1){
+      currentTransport.unsubscribe({ topicName: topicName + "/pos_agent" });
+    }
+    if(subsGroup[topicName + "/inside_grid"].length == 1){
+      currentTransport.unsubscribe({ topicName: topicName + "/inside_grid" });
+    }
+    if(subsGroup[topicName + "/polygon"].length == 1){
+      currentTransport.unsubscribe({ topicName: topicName + "/polygon" });
+    }
+    if(subsGroup[topicName + "/graphLimits"].length == 1){
+      currentTransport.unsubscribe({ topicName: topicName + "/graphLimits" });
+    }
+    if(subsGroup[topicName + "/distGoal"].length == 1){
+      currentTransport.unsubscribe({ topicName: topicName + "/distGoal" });
+    }
+    if(subsGroup[topicName + "/status"].length == 1){
+     currentTransport.unsubscribe({ topicName: topicName + "/status" });
+    }
+  }
+  else if(subsGroup[topicName].length == 1){
     currentTransport.unsubscribe({ topicName: topicName });
   }
+
+
   $grid.masonry("remove", viewerInstance.card);
   delete (subscriptions[subsIdx].viewer);
   delete (subscriptions[subsIdx]);
@@ -395,13 +553,53 @@ function getSubscritors (subs){
   let rosTopicName = new Object();
 
   Object.keys(subs).forEach(function (key, i) {
-    let aux = key.split("_")[0];
-    rosTopicName[aux] = [];
+    // let aux = key.split("__")[0];
+    // rosTopicName[aux] = [];
+
+    let keyParsed = key.split("__");
+    let topic = keyParsed[0];
+    
+    for(let i=1; i<keyParsed.length-1; i++){
+      topic = topic + "__" + keyParsed[i];
+    }
+
+    if(topic == "/environmentPlot"){
+      rosTopicName[topic + "/pos_odorsource"] = [];
+      rosTopicName[topic + "/pos_goal"] = [];
+      rosTopicName[topic + "/pos_agent"] = [];
+      rosTopicName[topic + "/polygon"] = [];
+      rosTopicName[topic + "/inside_grid"] = [];
+      rosTopicName[topic + "/graphLimits"] = [];
+      rosTopicName[topic + "/distGoal"] = [];
+      rosTopicName[topic + "/status"] = [];
+    }
+    else{
+      rosTopicName[topic] = [];
+    }
   });
 
   Object.keys(subs).forEach(function (key, i) {
-    let aux = key.split("_")[0];
-    rosTopicName[aux].push(key);
+    let keyParsed = key.split("__");
+    let topic = keyParsed[0];
+    
+    for(let i=1; i<keyParsed.length-1; i++){
+      topic = topic + "__" + keyParsed[i];
+    }
+
+    // let aux = key.split("_")[0];
+    if(topic == "/environmentPlot"){
+      rosTopicName[topic + "/pos_odorsource"].push(key);
+      rosTopicName[topic + "/pos_goal"].push(key);
+      rosTopicName[topic + "/pos_agent"].push(key);
+      rosTopicName[topic + "/polygon"].push(key);
+      rosTopicName[topic + "/inside_grid"].push(key);
+      rosTopicName[topic + "/graphLimits"].push(key);
+      rosTopicName[topic + "/distGoal"].push(key);
+      rosTopicName[topic + "/status"].push(key);
+    }
+    else{
+      rosTopicName[topic].push(key);
+    }
   });
 
   return rosTopicName;

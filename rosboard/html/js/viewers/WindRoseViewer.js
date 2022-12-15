@@ -9,7 +9,7 @@ class WindRoseViewer extends Viewer {
         this.viewer = $('<div></div>')
             .css({
                 'font-size': '11pt'
-                , "filter": "invert(100%) saturate(50%)"
+                , "filter": "invert(100%)"
             })
             .appendTo(this.card.content);
 
@@ -28,7 +28,7 @@ class WindRoseViewer extends Viewer {
             .css({ 'width': '100%', 'table-layout': 'fixed' })
             .appendTo(this.viewer);
 
-        this.size = 100;
+        this.size = 1;
         this.data = [
             new Array(this.size).fill(0),
             new Array(this.size).fill(0),
@@ -52,8 +52,7 @@ class WindRoseViewer extends Viewer {
             let dirNW = 0;
             let serieDir = [];
             let numElem = data.length;
-            let size = 100;
-
+            let size = data.length;
 
             for (let i = 0; i < numElem; i++) {
                 if (data[i] >= 0 && data[i] < 45) {
@@ -284,6 +283,7 @@ class WindRoseViewer extends Viewer {
                     }
                 );
             }
+
             return seriesSpeed;
         }
 
@@ -312,7 +312,10 @@ class WindRoseViewer extends Viewer {
             tooltip: am5.Tooltip.new(root, {})
         }));
 
-        var yRenderer = am5radar.AxisRendererRadial.new(root, {});
+        var yRenderer = am5radar.AxisRendererRadial.new(root, {
+            minGridDistance: 50,
+            radius: 100
+        });
         yRenderer.labels.template.setAll({
             fontSize: 10
             // minGridDistance: 1
@@ -326,7 +329,8 @@ class WindRoseViewer extends Viewer {
         // Create series
         // https://www.amcharts.com/docs/v5/charts/radar-chart/#Adding_series
         var series = [];
-        let seriesColor = ["#ed1b2e", "#d7d7d8", "#ecb731", "#8ec06c", "#56a0d3", "#7f181b", "#6639b7", "#fff200", "#ed008c", "#ea4c89", "#003265"];
+        // let seriesColor = ["#ed1b2e", "#d7d7d8", "#ecb731", "#8ec06c", "#56a0d3", "#7f181b", "#6639b7", "#fff200", "#ed008c", "#ea4c89", "#003265"];
+        let seriesColor = ["#8b4513", "#228b22", "#4682b4", "#4b0082", "#ff0000", "#00ff00", "#00ffff", "#0000ff", "#ffff54", "#ff69b4", "#ffe4c4"];
         let seriesField = ["0_20", "20_50", "50_100", "100_150", "150_200", "200_250", "250_300", "300_350", "350_400", "400_450", "450_plus"];
 
         for (let i = 0; i < seriesField.length; i++) {
@@ -364,49 +368,49 @@ class WindRoseViewer extends Viewer {
         let legendArrayLeft = [
             { 
                 serieName: "0.0 - 0.2m/s",
-                color: "#ed1b2e"
+                color: seriesColor[0]
             },
             { 
                 serieName: "0.2 - 0.5m/s",
-                color: "#d7d7d8"
+                color: seriesColor[1]
             },
             { 
                 serieName: "0.5 - 1.0m/s",
-                color: "#ecb731"
+                color: seriesColor[2]
             },
             { 
                 serieName: "1.0 - 1.5m/s",
-                color: "#8ec06c"
+                color: seriesColor[3]
             },
             { 
                 serieName: "1.5 - 2.0m/s",
-                color: "#56a0d3"
+                color: seriesColor[4]
             },
             { 
                 serieName: "2.0 - 2.5m/s",
-                color: "#7f181b"
+                color: seriesColor[5]
             }
         ];
         let legendArrayRight = [
             { 
                 serieName: "2.5 - 3.0m/s",
-                color: "#6639b7"
+                color: seriesColor[6]
             },
             { 
                 serieName: "3.0 - 3.5m/s",
-                color: "#fff200"
+                color: seriesColor[7]
             },
             { 
                 serieName: "3.5 - 4.0m/s",
-                color: "#ed008c"
+                color: seriesColor[8]
             },
             { 
                 serieName: "4.0 - 4.5m/s",
-                color: "#ea4c89"
+                color: seriesColor[9]
             },
             { 
                 serieName: "4.5+ m/s",
-                color: "#003265"
+                color: seriesColor[10]
             }
         ];
         var legendLeft = chart.children.push(am5.Legend.new(root, {
@@ -452,6 +456,9 @@ class WindRoseViewer extends Viewer {
 
             let seriesWind = arrangeWindData(this.data);
             try {
+                for (let i = 0; i < seriesField.length; i++) {
+                    series[seriesField[i]].data.setAll([]);
+                }
                 for (let i = 0; i < seriesWind.length; i++) {
                     series[seriesWind[i].serieName].data.setAll(seriesWind[i].value);
                 }

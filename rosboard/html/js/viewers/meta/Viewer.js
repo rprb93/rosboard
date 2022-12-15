@@ -11,110 +11,172 @@ class Viewer {
     * Class constructor.
     * @constructor
   **/
-  constructor(card, subsIdx, topicName, topicType, plotShow = 0) {
+  constructor(card, subsIdx, topicName, topicType = "", plotShow = 0) {
     this.card = card;
     this.isPaused = false;
 
-    this.subsIdx = subsIdx;
-    this.topicName = topicName;
-    this.topicType = topicType;
-    this.numElem_new = 0;
-    this.numElem_old = 0;
-    this.plotShow = plotShow;
+    if(topicName == "/environmentPlot"){
+      this.subsIdx = subsIdx;
+      this.topicName = topicName;
+      this.topicType = "std_msgs/Float32MultiArray";
+      this.topicPosOdorSouce = topicName + "/posOdorSouce";
+      this.topicPosGoal = topicName + "/posGoal";
+      this.topicPosAgent = topicName + "/posAgent";
+      this.numElem_new = 0;
+      this.numElem_old = 0;
+      this.plotShow = plotShow;
 
-    this.onClose = () => { };
-    let that = this;
+      this.onClose = () => { };
+      let that = this;
 
-    // div container at the top right for all the buttons
-    card.buttons = $('<div></div>').addClass('card-buttons').text('').appendTo(card);
+      // card title div
+      card.title = $('<div></div>').addClass('card-title card-title_environmentPlot').text("Waiting for data ...").appendTo(card);
 
-    // card title div
-    card.title = $('<div></div>').addClass('card-title').text("Waiting for data ...").appendTo(card);
+      card.status = $('<div></div>').addClass('card-title_status card-title_environmentPlot').text('Status: Off').appendTo(card);
 
-    // card content div
-    card.content = $('<div></div>').addClass('card-content').text('').appendTo(card);
+      // div container at the top right for all the buttons
+      card.buttons = $('<div></div>').addClass('card-buttons').text('').appendTo(card);
 
-    // card Float32MultiArray button
-    if (this.topicType === "std_msgs/Float32MultiArray") {
-      let mlArrayId = 'menu-' + Math.floor(Math.random() * 1e6);
+      // card content div
+      card.content = $('<div></div>').addClass('card-content').text('').appendTo(card);
 
-      card.settingsButton = $('<button id="' + mlArrayId + '"></button>')
+      componentHandler.upgradeAllRegistered();
+
+      // card pause button
+      card.pauseButton = $('<button></button>')
         .addClass('mdl-button')
         .addClass('mdl-js-button')
         .addClass('mdl-button--icon')
         .addClass('mdl-button--colored')
-        .append($('<i></i>').addClass('material-icons').text('expand_more'))
+        .append($('<i></i>').addClass('material-icons').text('pause'))
+        .appendTo(card.buttons);
+      card.pauseButton.click(function (e) {
+        that.isPaused = !that.isPaused;
+        that.card.pauseButton.find('i').text(that.isPaused ? 'play_arrow' : 'pause');
+      });
+
+      // card close button
+      card.closeButton = $('<button></button>')
+        .addClass('mdl-button')
+        .addClass('mdl-js-button')
+        .addClass('mdl-button--icon')
+        .append($('<i></i>').addClass('material-icons').text('close'))
+        .appendTo(card.buttons);
+      card.closeButton.click(() => { Viewer.onClose(that); });
+
+      // call onCreate(); child class will override this and initialize its UI
+      this.onCreate();
+
+      // lay a spinner over everything and get rid of it after first data is received
+      this.loaderContainer = $('<div></div>')
+        .addClass('loader-container')
+        .append($('<div></div>').addClass('loader'))
+        .appendTo(this.card);
+
+      this.lastDataTime = 0.0;
+    }
+    else{
+      this.subsIdx = subsIdx;
+      this.topicName = topicName;
+      this.topicType = topicType;
+      this.numElem_new = 0;
+      this.numElem_old = 0;
+      this.plotShow = plotShow;
+
+      this.onClose = () => { };
+      let that = this;
+
+      // div container at the top right for all the buttons
+      card.buttons = $('<div></div>').addClass('card-buttons').text('').appendTo(card);
+
+      // card title div
+      card.title = $('<div></div>').addClass('card-title').text("Waiting for data ...").appendTo(card);
+
+      // card content div
+      card.content = $('<div></div>').addClass('card-content').text('').appendTo(card);
+
+      // card Float32MultiArray button
+      if (this.topicType === "std_msgs/Float32MultiArray") {
+        let mlArrayId = 'menu-' + Math.floor(Math.random() * 1e6);
+
+        card.settingsButton = $('<button id="' + mlArrayId + '"></button>')
+          .addClass('mdl-button')
+          .addClass('mdl-js-button')
+          .addClass('mdl-button--icon')
+          .addClass('mdl-button--colored')
+          .append($('<i></i>').addClass('material-icons').text('expand_more'))
+          .appendTo(card.buttons);
+
+        card.multiArray = $('<ul id=ul-' + mlArrayId + ' class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" style="overflow-y: scroll; max-height: 150px;" \
+        for="' + mlArrayId + '"></ul>').appendTo(card);
+
+        for (let i = 0; i < this.numElem; i++) {
+          let item = $('<li class="mdl-menu__item">' + i + '</li>').appendTo(this.card.multiArray);
+          let that = this;
+          item.click(() => {
+            Viewer.onSwitchViewer(that, this.numElem[i]);
+          });
+        }
+      }
+
+      // card pause button
+      let menuId = 'menu-' + Math.floor(Math.random() * 1e6);
+
+      card.settingsButton = $('<button id="' + menuId + '"></button>')
+        .addClass('mdl-button')
+        .addClass('mdl-js-button')
+        .addClass('mdl-button--icon')
+        .addClass('mdl-button--colored')
+        .append($('<i></i>').addClass('material-icons').text('more_vert'))
         .appendTo(card.buttons);
 
-      card.multiArray = $('<ul id=ul-' + mlArrayId + ' class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" style="overflow-y: scroll; max-height: 150px;" \
-      for="' + mlArrayId + '"></ul>').appendTo(card);
+      card.menu = $('<ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" \
+        for="' + menuId + '"></ul>').appendTo(card);
 
-      for (let i = 0; i < this.numElem; i++) {
-        let item = $('<li class="mdl-menu__item">' + i + '</li>').appendTo(this.card.multiArray);
+      let viewers = Viewer.getViewersForType(this.topicType);
+      for (let i in viewers) {
+        let item = $('<li ' + (viewers[i].name === this.constructor.name ? 'disabled' : '') + ' class="mdl-menu__item">' + viewers[i].friendlyName + '</li>').appendTo(this.card.menu);
         let that = this;
         item.click(() => {
-          Viewer.onSwitchViewer(that, this.numElem[i]);
+          Viewer.onSwitchViewer(that, viewers[i]);
         });
       }
-    }
 
-    // card pause button
-    let menuId = 'menu-' + Math.floor(Math.random() * 1e6);
+      componentHandler.upgradeAllRegistered();
 
-    card.settingsButton = $('<button id="' + menuId + '"></button>')
-      .addClass('mdl-button')
-      .addClass('mdl-js-button')
-      .addClass('mdl-button--icon')
-      .addClass('mdl-button--colored')
-      .append($('<i></i>').addClass('material-icons').text('more_vert'))
-      .appendTo(card.buttons);
-
-    card.menu = $('<ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" \
-      for="' + menuId + '"></ul>').appendTo(card);
-
-    let viewers = Viewer.getViewersForType(this.topicType);
-    for (let i in viewers) {
-      let item = $('<li ' + (viewers[i].name === this.constructor.name ? 'disabled' : '') + ' class="mdl-menu__item">' + viewers[i].friendlyName + '</li>').appendTo(this.card.menu);
-      let that = this;
-      item.click(() => {
-        Viewer.onSwitchViewer(that, viewers[i]);
+      // card pause button
+      card.pauseButton = $('<button></button>')
+        .addClass('mdl-button')
+        .addClass('mdl-js-button')
+        .addClass('mdl-button--icon')
+        .addClass('mdl-button--colored')
+        .append($('<i></i>').addClass('material-icons').text('pause'))
+        .appendTo(card.buttons);
+      card.pauseButton.click(function (e) {
+        that.isPaused = !that.isPaused;
+        that.card.pauseButton.find('i').text(that.isPaused ? 'play_arrow' : 'pause');
       });
+
+      // card close button
+      card.closeButton = $('<button></button>')
+        .addClass('mdl-button')
+        .addClass('mdl-js-button')
+        .addClass('mdl-button--icon')
+        .append($('<i></i>').addClass('material-icons').text('close'))
+        .appendTo(card.buttons);
+      card.closeButton.click(() => { Viewer.onClose(that); });
+
+      // call onCreate(); child class will override this and initialize its UI
+      this.onCreate();
+
+      // lay a spinner over everything and get rid of it after first data is received
+      this.loaderContainer = $('<div></div>')
+        .addClass('loader-container')
+        .append($('<div></div>').addClass('loader'))
+        .appendTo(this.card);
+
+      this.lastDataTime = 0.0;
     }
-
-    componentHandler.upgradeAllRegistered();
-
-    // card pause button
-    card.pauseButton = $('<button></button>')
-      .addClass('mdl-button')
-      .addClass('mdl-js-button')
-      .addClass('mdl-button--icon')
-      .addClass('mdl-button--colored')
-      .append($('<i></i>').addClass('material-icons').text('pause'))
-      .appendTo(card.buttons);
-    card.pauseButton.click(function (e) {
-      that.isPaused = !that.isPaused;
-      that.card.pauseButton.find('i').text(that.isPaused ? 'play_arrow' : 'pause');
-    });
-
-    // card close button
-    card.closeButton = $('<button></button>')
-      .addClass('mdl-button')
-      .addClass('mdl-js-button')
-      .addClass('mdl-button--icon')
-      .append($('<i></i>').addClass('material-icons').text('close'))
-      .appendTo(card.buttons);
-    card.closeButton.click(() => { Viewer.onClose(that); });
-
-    // call onCreate(); child class will override this and initialize its UI
-    this.onCreate();
-
-    // lay a spinner over everything and get rid of it after first data is received
-    this.loaderContainer = $('<div></div>')
-      .addClass('loader-container')
-      .append($('<div></div>').addClass('loader'))
-      .appendTo(this.card);
-
-    this.lastDataTime = 0.0;
   }
 
   /**
@@ -139,9 +201,9 @@ class Viewer {
 
   update(data) {
     let time = Date.now();
-    if ((time - this.lastDataTime) / 1000.0 < 1 / this.constructor.maxUpdateRate - 5e-4) {
-      return;
-    }
+    // if ((time - this.lastDataTime) / 1000.0 < 1 / this.constructor.maxUpdateRate - 5e-4) {
+    //   return;
+    // }
 
     if (this.isPaused) { this.onDataPaused(data); return; }
 
@@ -182,6 +244,7 @@ class Viewer {
     }
 
     // actually update the data
+    // console.log("Test: " + data);
     this.onData(data);
   }
 

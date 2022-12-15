@@ -6,6 +6,7 @@ class ButtonViewer extends Viewer {
     * @override
   **/
   onCreate() {
+    this.valueButton02 = 0;
 
     this.card.title.text("Control Panel");
 
@@ -224,12 +225,12 @@ class ButtonViewer extends Viewer {
       document.getElementById("btAction01").style.background = "#b33fb5"
     }
 
-    if (msg.data[3] == 'A') {
-      document.getElementById("btAction02").style.background = "#3f51b5"
-    }
-    else if(msg.data[3] == 'B') {
-      document.getElementById("btAction02").style.background = "#b33fb5"
-    }
+    // if (msg.data[3] == 'A') {
+    //   document.getElementById("btAction02").style.background = "#3f51b5"
+    // }
+    // else if(msg.data[3] == 'B') {
+    //   document.getElementById("btAction02").style.background = "#b33fb5"
+    // }
 
     if (msg.data[5] == 'A') {
       document.getElementById("btAction10").style.background = "#3f51b5"
@@ -266,12 +267,12 @@ class ButtonViewer extends Viewer {
       document.getElementById("btAction21").style.background = "#b33fb5"
     }
 
-    if (msg.data[11] == 'A') {
-      document.getElementById("btAction22").style.background = "#3f51b5"
-    }
-    else if(msg.data[11] == 'B') {
-      document.getElementById("btAction22").style.background = "#b33fb5"
-    }
+    // if (msg.data[11] == 'A') {
+    //   document.getElementById("btAction22").style.background = "#3f51b5"
+    // }
+    // else if(msg.data[11] == 'B') {
+    //   document.getElementById("btAction22").style.background = "#b33fb5"
+    // }
   }
 }
 
