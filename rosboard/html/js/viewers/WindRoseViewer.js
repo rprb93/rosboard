@@ -330,7 +330,8 @@ class WindRoseViewer extends Viewer {
         // https://www.amcharts.com/docs/v5/charts/radar-chart/#Adding_series
         var series = [];
         // let seriesColor = ["#ed1b2e", "#d7d7d8", "#ecb731", "#8ec06c", "#56a0d3", "#7f181b", "#6639b7", "#fff200", "#ed008c", "#ea4c89", "#003265"];
-        let seriesColor = ["#8b4513", "#228b22", "#4682b4", "#4b0082", "#ff0000", "#00ff00", "#00ffff", "#0000ff", "#ffff54", "#ff69b4", "#ffe4c4"];
+        let original = ["#8b4513", "#228b22", "#4682b4", "#4b0082", "#ff0000", "#00ff00", "#00ffff", "#0000ff", "#ffff54", "#ff69b4", "#ffe4c4"];
+        let seriesColor = ["#00ffff", "#ff0000", "#0000ff", "#00ff00", "#4682b4", "#ff69b4", "#ffff54", "#4b0082", "#8b4513", "#228b22", "#ffe4c4"];
         let seriesField = ["0_20", "20_50", "50_100", "100_150", "150_200", "200_250", "250_300", "300_350", "350_400", "400_450", "450_plus"];
 
         for (let i = 0; i < seriesField.length; i++) {
