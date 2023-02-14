@@ -118,6 +118,11 @@ class Viewer {
           });
         }
       }
+      else{
+        let mlArrayId = 'menu-' + Math.floor(Math.random() * 1e6);
+        card.multiArray = $('<ul id=ul-' + mlArrayId + ' class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" style="overflow-y: scroll; max-height: 150px;" \
+        for="' + mlArrayId + '"></ul>').appendTo(card);
+      }
 
       // card pause button
       let menuId = 'menu-' + Math.floor(Math.random() * 1e6);

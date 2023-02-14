@@ -120,8 +120,14 @@ class TimeSeriesPlotViewer extends Viewer {
       //   this.valueField.text(Math.round(angleDeg * 100) / 100);
       // }
       // else{
+      if (msg._topic_type === "std_msgs/Float32MultiArray") {
         this.data[1][this.ptr] = msg.data[this.plotShow];
         this.valueField.text(Math.round(msg.data[this.plotShow] * 100) / 100);
+      }
+      else{
+        this.data[1][this.ptr] = msg.data;
+        this.valueField.text(Math.round(msg.data * 100) / 100);
+      }
         // this.valueField.text("sdfzsdf");
       // }
       this.ptr = (this.ptr + 1) % this.size;
